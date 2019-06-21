@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<HBox fx:id="etoileView" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <StackPane fx:id="primaryView">
+         <children>
+            <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="34.0" radiusY="14.0" stroke="BLACK" strokeType="INSIDE" />
+            <Label fx:id="name" text="Label" />
+         </children>
+      </StackPane>
+      <VBox fx:id="childArea" />
+   </children>
+</HBox>
