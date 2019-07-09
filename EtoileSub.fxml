@@ -7,14 +7,19 @@
 <?import javafx.scene.layout.*?>
 
 
-<HBox fx:id="etoileView" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="etoileView" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <StackPane fx:id="primaryView">
+      <Pane fx:id="backgroundPane" />
+      <HBox spacing="10.0">
          <children>
-            <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="34.0" radiusY="14.0" stroke="BLACK" strokeType="INSIDE" />
-            <Label fx:id="name" text="Label" />
+            <StackPane fx:id="primaryView">
+               <children>
+                  <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="34.0" radiusY="14.0" stroke="BLACK" strokeType="INSIDE" />
+                  <Label fx:id="name" text="Label" />
+               </children>
+            </StackPane>
+            <VBox fx:id="childArea" spacing="10.0" />
          </children>
-      </StackPane>
-      <VBox fx:id="childArea" />
+      </HBox>
    </children>
-</HBox>
+</StackPane>

@@ -6,18 +6,24 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox fx:id="etoileView" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<StackPane fx:id="etoileView" cache="true" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <StackPane fx:id="primaryView" prefHeight="96.0" prefWidth="109.0">
+      <Pane fx:id="backgroundPane" cache="true" />
+      <HBox cache="true" spacing="10.0">
          <children>
-            <Ellipse fx:id="etoileShape" fill="DODGERBLUE" radiusX="60.0" radiusY="48.0" stroke="BLACK" strokeType="INSIDE" />
-            <Label fx:id="name" text="Label">
-               <font>
-                  <Font size="23.0" />
-               </font>
-            </Label>
+            <StackPane fx:id="primaryView" cache="true" prefHeight="96.0" prefWidth="109.0">
+               <children>
+                  <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="DODGERBLUE" radiusX="60.0" radiusY="48.0" stroke="BLACK" strokeType="INSIDE" />
+                  <Label fx:id="name" cache="true" text="Label">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Label>
+               </children>
+            </StackPane>
+            <VBox fx:id="childArea" cache="true" spacing="10.0" />
          </children>
-      </StackPane>
-      <VBox fx:id="childArea" />
+      </HBox>
    </children>
-</HBox>
+</StackPane>

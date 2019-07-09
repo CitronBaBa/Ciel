@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.canvas.*?>
@@ -7,13 +8,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="968.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Button mnemonicParsing="false" text="Button" BorderPane.alignment="TOP_CENTER" />
+   </top>
    <center>
-      <StackPane>
-         <children>
-            <Pane fx:id="cielArea" BorderPane.alignment="CENTER" />
-            <Pane fx:id="cielTop" mouseTransparent="true" prefHeight="200.0" prefWidth="200.0" />
-         </children>
-      </StackPane>
+      <ScrollPane fx:id="cielScrolPane" cacheHint="QUALITY" prefHeight="679.0" prefViewportHeight="639.0" prefViewportWidth="968.0" prefWidth="1025.0" BorderPane.alignment="CENTER">
+         <content>
+            <Pane fx:id="cielArea" cacheHint="QUALITY" />
+         </content>
+      </ScrollPane>
    </center>
 </BorderPane>

@@ -1,8 +1,14 @@
 import java.util.*;
+import java.io.Serializable;
 
-public class Etoile
+public class Etoile implements Serializable
 {   private String name;
+    private String text = "";
+
+    // remebering two coordinates to facilitate operations in javafx
     private Coordination etoilePos = new Coordination(100,100);
+    private Coordination viewPos = null;
+
     private List<Etoile> children = new ArrayList<>();
     private Etoile parentStar;
     private boolean isSubStar = false;
@@ -16,13 +22,40 @@ public class Etoile
     public Etoile(String name)
     {   this.name = name;
     }
+    public Etoile(String name, boolean isSubStar, Etoile parentStar)
+    {   this.name = name;
+        this.isSubStar = isSubStar;
+        this.parentStar = parentStar;
+    }
     public void updateCoordination(Coordination newPos)
     {   this.etoilePos.setX(newPos.getX());
         this.etoilePos.setY(newPos.getY());
     }
+    public void updateCoordination(Coordination newPos, Coordination viewPos)
+    {   this.etoilePos.setX(newPos.getX());
+        this.etoilePos.setY(newPos.getY());
+        this.viewPos = viewPos;
+    }
+
     public String getName() {   return name;}
     public void setName(String name) { this.name = name;}
+    public String getText() {   return text;}
+    public void setText(String text) { this.text = text;}
+
     public Coordination getCoordination() {   return etoilePos;}
+    public Coordination getViewCoor() {   return viewPos;}
     public void addChild(Etoile newChild) {   children.add(newChild);}
     public List<Etoile> getChildren() {   return children;}
+
+    public boolean removeOneInChildren(Etoile star)
+    {   if(children.remove(star)) return true;
+        for(Etoile e : children)
+        {   if(e.removeOneInChildren(star)) 
+            return true;
+        }
+        return false;
+    }
+        // Etoile originalStar = monEtoile; 
+        // while(originalStar.isSubStar()) originalStar = originalStar.getParent();      
+        // etoileMap.get(originalStar).updateStarPos(originalStar.getCoordination());
 }

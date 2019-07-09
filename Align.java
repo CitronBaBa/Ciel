@@ -1,6 +1,6 @@
 import java.util.*;
-
-public class Align
+import java.io.Serializable;
+public class Align implements Serializable
 {   private Etoile from;
     private Etoile to;
     public Etoile getFromStar() { return from;}
