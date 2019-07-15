@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -6,7 +7,7 @@ import javafx.scene.layout.*;
 import javafx.scene.Parent;
 import javafx.scene.input.*;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.fxml.Initializable;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -19,36 +20,64 @@ import javafx.scene.effect.*;
 
 public class topMenuControl
 {   private CielControl cielControl;
-    private HBox menuPanel;
+    private GlobalSatellite globals;
+    //fxml
+    public Node menuPanel;
+    public MenuItem save;
+    public MenuItem read;
+
+    public MenuItem remove;
 
     public Node getPanel()
     {   return menuPanel;
     }
 
-    public topMenuControl(CielControl cielControl)
-    {   this.cielControl = cielControl;
+    public topMenuControl(CielControl cielControl) throws Exception
+    {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("topMenu.fxml"));
+        fxmlLoader.setController(this);
+        fxmlLoader.load();
+        this.cielControl = cielControl;
+        this.globals = GlobalSatellite.getSatellite();
         initialization();
     }
 
     private void initialization()
-    {   menuPanel = new HBox();
-        Button btn0 = new Button("Save");
-        btn0.setOnAction(e->saving());
-        Button btn1 = new Button("Read");
-        btn1.setOnAction(e->reading());
-        menuPanel.getChildren().addAll(btn0,btn1);
+    {   save.setOnAction(e->saving());
+        read.setOnAction(e->reading());
+        remove.setOnAction(e->removing());
     }
 
     private void saving()
     {   Ciel cielModel = cielControl.getCielModel();
-        FileSystem fileHandler = new FileSystem("./data/");
-        fileHandler.writeObjectTo("testing",cielModel);
+        String path = askSaveFileName();
+        FileSystem fileHandler = new FileSystem("");
+        fileHandler.writeObjectTo(path,cielModel);
+    }
+    private String askSaveFileName()
+    {   FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("./data/"));
+        File selectedFile = fileChooser.showSaveDialog(globals.getStage());
+        if(selectedFile==null) return null;
+        return selectedFile.getPath();
     }
 
     private void reading()
-    {   FileSystem fileHandler = new FileSystem("./data/");
-        Ciel cielModel = (Ciel) fileHandler.readObjectFrom("testing");
+    {   String path = askReadFileName();
+        FileSystem fileHandler = new FileSystem("");
+        Ciel cielModel = (Ciel) fileHandler.readObjectFrom(path);
         cielControl.loadFromCielModel(cielModel);
+    }
+    private String askReadFileName()
+    {   FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("./data/"));
+        File selectedFile = fileChooser.showOpenDialog(globals.getStage());
+        if(selectedFile==null) return null;
+        return selectedFile.getPath();
+    }
+
+
+    private void removing()
+    {   cielControl.removeSelected();
     }
     
 }   

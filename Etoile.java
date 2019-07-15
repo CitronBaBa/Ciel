@@ -27,10 +27,6 @@ public class Etoile implements Serializable
         this.isSubStar = isSubStar;
         this.parentStar = parentStar;
     }
-    public void updateCoordination(Coordination newPos)
-    {   this.etoilePos.setX(newPos.getX());
-        this.etoilePos.setY(newPos.getY());
-    }
     public void updateCoordination(Coordination newPos, Coordination viewPos)
     {   this.etoilePos.setX(newPos.getX());
         this.etoilePos.setY(newPos.getY());

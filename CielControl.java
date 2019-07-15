@@ -17,11 +17,13 @@ import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
-public class CielControl 
+public class CielControl
 {   //fxml
     private Pane cielArea;
+    private VBox cielBox;
     private ScrollPane cielScrolPane;
-    TextRealm textRealm;
+
+    private double zoomIntensity = 0.002;
 
     private EtoileControl selectedEtoile;
     public EtoileControl getSelectedStar() {   return selectedEtoile;}
@@ -31,8 +33,8 @@ public class CielControl
 // mapping between model object and graph object
 // used to quickly find controller
     private Map<Etoile,EtoileControl> etoileControls = new HashMap<>();
-    private Map<Align,QuadCurve> alignControls = new HashMap<>();
-   
+    private Map<Align,AlignControl> alignControls = new HashMap<>();
+
     private VBox backgroundPopUp;
     private VBox starPopUp;
 
@@ -42,18 +44,18 @@ public class CielControl
     private EtoileControl nearsetStar;
 
 
-    public CielControl(Pane cielArea,  ScrollPane cielScrolPane, TextRealm textRealm)
+    public CielControl(Pane cielArea, VBox cielBox, ScrollPane cielScrolPane)
     {   cielModel = new Ciel();
         this.cielArea = cielArea;
-        this.textRealm = textRealm;
+        this.cielBox = cielBox;
         this.cielScrolPane = cielScrolPane;
         initialization();
     }
 
     public void loadFromCielModel(Ciel cielModel)
-    {   // clear up 
+    {   // clear up
         removeEverything();
-        
+
         // loading
         this.cielModel = cielModel;
         for(Etoile e : cielModel.getParentEtoiles())
@@ -69,7 +71,7 @@ public class CielControl
         {   EtoileControl childStar = drawOneStar(eSub,"EtoileSub.fxml");
             if(eSub.getChildren().size()>0)
             drawChildStar(childStar);
-        }   
+        }
     }
 
     private void removeEverything()
@@ -79,34 +81,82 @@ public class CielControl
         newAlignCurve = null;
         fromStar = null;
         nearsetStar = null;
-        selectedEtoile = null;
+        unSelectStar();
 
         //reset background
         backgroundSetUp();
     }
 
-    private void initialization() 
+    private void initialization()
     {   backgroundSetUp();
         cielMouseSetUp();
         cielBoundSetUp();
+        scrollAndZoomSetUp();
         popUpMenu();
 
         Etoile star0 = new Etoile("Node");
         drawOneStar(star0, "Etoile.fxml");
     }
     private void cielBoundSetUp()
-    {   cielArea.minWidthProperty().bind(cielScrolPane.widthProperty());
-        cielArea.minHeightProperty().bind(cielScrolPane.heightProperty());
-      // cielScrolPane.setPannable(true);
+    {   //cielArea.prefWidthProperty().bind(cielBox.widthProperty());
+        //cielArea.prefHeightProperty().bind(cielBox.heightProperty());
+        cielScrolPane.setPannable(true);
         Rectangle clipRec = new Rectangle();
         cielArea.setClip(clipRec);
         cielArea.layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
-            //System.out.println(newValue);
             clipRec.setWidth(newValue.getWidth());
-            clipRec.setHeight(newValue.getHeight());
-        });  
-        // cielScrolPane.setFitToHeight(true);
-        // cielScrolPane.setFitToWidth(true);
+             clipRec.setHeight(newValue.getHeight());
+         });
+         // cielScrolPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+    }
+
+    private void scrollAndZoomSetUp()
+    {   cielBox.setOnScroll(e ->
+        {   e.consume();
+            System.out.println("scrolled : " +e.getDeltaX());
+            onScroll(e.getDeltaY(), new Point2D(e.getX(), e.getY()));
+        });
+    }
+
+    private void updateScale()
+    {   double scaleValue = cielModel.getScaleProperty().get();
+        for(Map.Entry<Etoile,EtoileControl> pair: etoileControls.entrySet())
+        {   if(!pair.getValue().getEtoile().isSubStar())
+            {   pair.getValue().getView().setScaleX(scaleValue);
+                pair.getValue().getView().setScaleY(scaleValue);
+            }
+        }
+    }
+
+    private void onScroll(double wheelDelta, Point2D mousePoint)
+    {   double zoomFactor = Math.exp(wheelDelta * zoomIntensity);
+
+        Node zoomNode = cielBox.getChildren().get(0);
+        Bounds innerBounds = zoomNode.getLayoutBounds();
+        Bounds viewportBounds = cielScrolPane.getViewportBounds();
+
+        // calculate pixel offsets from [0, 1] range
+        double valX = cielScrolPane.getHvalue() * (innerBounds.getWidth() - viewportBounds.getWidth());
+        double valY = cielScrolPane.getVvalue() * (innerBounds.getHeight() - viewportBounds.getHeight());
+
+        double scaleValue = cielModel.getScaleProperty().get();
+        scaleValue = scaleValue * zoomFactor;
+        cielModel.getScaleProperty().set(scaleValue);
+        //updateScale();
+        cielScrolPane.layout(); // refresh ScrollPane scroll positions & target bounds
+
+        // convert target coordinates to zoomTarget coordinates
+        Point2D posInZoomTarget = cielArea.parentToLocal(zoomNode.parentToLocal(mousePoint));
+
+        // calculate adjustment of scroll position (pixels)
+        Point2D adjustment = cielArea.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+
+        // convert back to [0, 1] range
+        // (too large/small values are automatically corrected by ScrollPane)
+        Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
+        //cielScrolPane.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
+        //cielScrolPane.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
+        System.out.println("adjust "+ adjustment);
     }
 
 //background must be the first element of cielarea
@@ -129,46 +179,31 @@ public class CielControl
         backgroundPopUp.getChildren().add(adding);
     }
     private void addingStar()
-    {   double x = backgroundPopUp.getLayoutX(); 
+    {   double x = backgroundPopUp.getLayoutX();
         double y = backgroundPopUp.getLayoutY();
         addingStarOperation(new Coordination(x,y));
         cielArea.getChildren().remove(backgroundPopUp);
     }
     private void addingStarOperation(Coordination newCoor)
     {   Etoile newEtoile = new Etoile("empty");
-        newEtoile.updateCoordination(newCoor);
         EtoileControl controller = drawOneStar(newEtoile,"Etoile.fxml");
+        controller.updateStarPos(newCoor);
     }
 
     private void drawOneAlign(Align align)
-    {   Coordination from = align.getFromStar().getCoordination(); 
-        Coordination to = align.getToStar().getCoordination();
-
-        QuadCurve curveLine = new QuadCurve();
-        setCurveCoor(curveLine,from,to);
-        cielArea.getChildren().add(1,curveLine);
-        alignControls.put(align,curveLine);
+    {   AlignControl newAlign = new AlignControl(align,alignControls,cielArea,cielModel);
+        newAlign.drawYourself();
     }
 
-    private void setCurveCoor(QuadCurve curveLine, Coordination from, Coordination to)
-    {   //double deltaX = to.getX()-from.getX();
-        //double deltaY = to.getY()-from.getY();
-        curveLine.endXProperty().bind(to.getXProperty().subtract(from.getXProperty()));
-        curveLine.endYProperty().bind(to.getYProperty().subtract(from.getYProperty()));
-        curveLine.layoutXProperty().bind(from.getXProperty());
-        curveLine.layoutYProperty().bind(from.getYProperty());
-        curveLine.setStartX(0);
-        curveLine.setStartY(0);
-        curveLine.setControlX(50);
-        curveLine.setControlX(50);
-        curveLine.setFill(null);
-        curveLine.setStroke(Color.BLACK);
+    private void addOneAlign(Align align)
+    {   AlignControl newAlign = new AlignControl(align,alignControls,cielArea,cielModel);
+        newAlign.addAndDrawYourself();
+        HoustonCenter.recordAction(new AlignAction(newAlign,false));
     }
-
 
     private EtoileControl drawOneStar(Etoile star, String viewName)
     {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(viewName));
-        EtoileControl controller = new EtoileControl(star,etoileControls,cielArea,cielModel);
+        EtoileControl controller = new EtoileControl(star,etoileControls,alignControls,cielArea,cielModel);
         fxmlLoader.setController(controller);
         try {   fxmlLoader.load(); }
         catch(Exception e) {  e.printStackTrace(); return null; }
@@ -182,10 +217,10 @@ public class CielControl
     {   starMouseSetUp(controller);
     }
 
-// child star should not be dragged 
+// child star should not be dragged
 // and ideally have a different mouse behavior
     private void starMouseSetUp(EtoileControl controller)
-    {   
+    {
         controller.getPrimaryView().setOnMouseDragged(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
@@ -193,6 +228,7 @@ public class CielControl
             if(controller.getEtoile().isSubStar()) return;
             Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
             controller.updateStarPos(newCoor);
+            event.consume();
         }
         });
 
@@ -200,12 +236,14 @@ public class CielControl
         controller.getPrimaryView().setOnDragDetected(new EventHandler<MouseEvent>()
         {   public void handle(MouseEvent event)
             {   controller.getPrimaryView().startFullDrag();
+                event.consume();
             }
         });
         controller.getPrimaryView().setOnMouseDragEntered(new EventHandler<MouseDragEvent>()
         {   public void handle(MouseDragEvent event)
             {   oldCoor.setX(controller.getEtoile().getCoordination().getX());
                 oldCoor.setY(controller.getEtoile().getCoordination().getY());
+                event.consume();
             }
         });
         // controller.getPrimaryView().setOnMouseDragOver(new EventHandler<MouseDragEvent>()
@@ -219,6 +257,7 @@ public class CielControl
             {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
                 HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,controller));
+                event.consume();
             }
         });
 
@@ -226,26 +265,27 @@ public class CielControl
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.SECONDARY && event.getClickCount() == 1)
-            {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));         
+            {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 popStarPopUp(newCoor,controller);
             }
             if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
-            {  selectStar(controller);
+            {   selectStar(controller);
+                event.consume();
             }
         }
-        }); 
+        });
         controller.getPrimaryView().setOnMouseEntered(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
         {   controller.addEffect();
         }
-        }); 
+        });
         controller.getPrimaryView().setOnMouseExited(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
         {   controller.removeEffect();
         }
-        }); 
+        });
     }
 
     private void selectStar(EtoileControl targetEtoile)
@@ -253,7 +293,13 @@ public class CielControl
         if(selectedEtoile != null) selectedEtoile.removeEffect();
         selectedEtoile = targetEtoile;
         selectedEtoile.addEffect();
-        textRealm.changeStar(selectedEtoile);
+        HoustonCenter.propagateEvent(CielEvent.ChangeFocus);
+    }
+    private void unSelectStar()
+    {   if(selectedEtoile == null) return;
+        selectedEtoile.removeEffect();
+        selectedEtoile = null;
+        HoustonCenter.propagateEvent(CielEvent.ChangeFocus);
     }
 
     private void popStarPopUp(Coordination coor, EtoileControl etoileController)
@@ -261,7 +307,7 @@ public class CielControl
         starPopUp.getChildren().clear();
         if(!cielArea.getChildren().contains(starPopUp))
         cielArea.getChildren().add(starPopUp);
-        
+
         Button linking = new Button("link");
         linking.setOnAction(new EventHandler<ActionEvent>(){
         public void handle(ActionEvent event)
@@ -280,7 +326,7 @@ public class CielControl
     {   Coordination from = etoileController.getCoordination();
         newAlignCurve = new QuadCurve();
         fromStar = etoileController;
-        setCurveCoor(newAlignCurve,from,from);
+        AlignControl.setCurveCoor(newAlignCurve,from,from);
         cielArea.getChildren().add(1,newAlignCurve);
         cielArea.getChildren().remove(starPopUp);
     }
@@ -288,15 +334,21 @@ public class CielControl
     {   EtoileControl newStar = drawOneStar(new Etoile("empty",true,parentStar.getEtoile()),"EtoileSub.fxml");
         cielArea.getChildren().remove(starPopUp);
     }
+
+    public void removeSelected()
+    {   if(selectedEtoile!=null)
+        removeOperation(selectedEtoile);
+    }
+
     private void removeOperation(EtoileControl targetEtoile)
     {   targetEtoile.removeYourself();
         HoustonCenter.recordAction(new AddingAction(targetEtoile,true));
         cielArea.getChildren().remove(starPopUp);
     }
-   
+
     private Coordination getCielRelativeCoor(Coordination sceneCoor)
     {   Point2D ori = cielArea.localToScene(0.0f,0.0f);
-        double cielX = sceneCoor.getX() - ori.getX(); 
+        double cielX = sceneCoor.getX() - ori.getX();
         double cielY = sceneCoor.getY() - ori.getY();
         return new Coordination(cielX,cielY);
     }
@@ -306,9 +358,9 @@ public class CielControl
         @Override
         public void handle(MouseEvent event)
         {   if(newAlignCurve==null) return;
-            Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY())); 
+            Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
             Coordination from = new Coordination(newAlignCurve.getLayoutX(),newAlignCurve.getLayoutY());
-            setCurveCoor(newAlignCurve,from,newCoor);
+            AlignControl.setCurveCoor(newAlignCurve,from,newCoor);
             focuseEffect(newCoor);
         }
         });
@@ -317,22 +369,21 @@ public class CielControl
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
-            {   cielArea.getChildren().remove(starPopUp);
-                cielArea.getChildren().remove(backgroundPopUp);
-                
-                // if(newAlignCurve==null) return;
-                // Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));         
-                // alignOneStar(newCoor);
+            {   unSelectStar();
             }
         }
         });
 
         cielArea.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-        public void handle(MouseEvent event) 
+        public void handle(MouseEvent event)
         {   if(newAlignCurve!=null)
             {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 alignOneStar(newCoor);
                 event.consume();
+            }
+            if(event.getClickCount() == 1)
+            {   cielArea.getChildren().remove(starPopUp);
+                cielArea.getChildren().remove(backgroundPopUp);
             }
         };
         });
@@ -363,22 +414,21 @@ public class CielControl
 
     private void alignOneStar(Coordination targetCoor)
     {   Align newAlign = new Align(fromStar.getEtoile(),nearsetStar.getEtoile());
-        drawOneAlign(newAlign);
-        cielModel.getAligns().add(newAlign);
+        addOneAlign(newAlign);
         cielArea.getChildren().remove(newAlignCurve);
         nearsetStar.removeEffect();
         newAlignCurve = null;
         fromStar = null;
     }
 
-    private EtoileControl findNearestStar(double x, double y) 
+    private EtoileControl findNearestStar(double x, double y)
     {   Point2D pClick = new Point2D(x, y);
         pClick = cielArea.localToScene(pClick);
         EtoileControl nearestEtoile = null;
         double closestDistance = Double.POSITIVE_INFINITY;
 
-        for (Map.Entry<Etoile,EtoileControl> pair : etoileControls.entrySet()) 
-        {   
+        for (Map.Entry<Etoile,EtoileControl> pair : etoileControls.entrySet())
+        {
             Node etoilePrimaryNode = pair.getValue().getPrimaryView();
             Bounds bounds = etoilePrimaryNode.localToScene(etoilePrimaryNode.getBoundsInLocal());
 
@@ -416,12 +466,15 @@ public class CielControl
         {   if(!inverse) target.addYourself();
             else target.removeYourself();
         }
+        private void removeStar()
+        {
+        }
     }
 
    private class AlignAction implements CielAction
-   {    private Align target;
+   {    private AlignControl target;
         private final boolean inverse;
-        public AlignAction(Align target, boolean inverse)
+        public AlignAction(AlignControl target, boolean inverse)
         {   this.target = target;
             this.inverse = inverse;
         }
@@ -434,10 +487,10 @@ public class CielControl
             else removeAlign();
         }
         private void removeAlign()
-        {   
+        {   target.removeYourself();
         }
         private void addAlign()
-        {
+        {   target.addAndDrawYourself();
         }
     }
 
@@ -458,4 +511,4 @@ public class CielControl
         }
     }
 
-}   
+}

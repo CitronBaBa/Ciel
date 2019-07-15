@@ -19,16 +19,25 @@ import javafx.scene.effect.*;
 
 public class StylePanel
 {   private CielControl cielControl;
-    private GridPane colorPanel = new GridPane();
+    private HBox bottomBox = new HBox();
+    private GridPane colorGird = new GridPane();
     private int x = 0; private int y = 0;
 
     public Node getPanel()
-    {   return colorPanel;
+    {   return bottomBox;
     }
 
     public StylePanel(CielControl cielControl)
     {   this.cielControl = cielControl;
+        init();
+    }
+    
+    private void init()
+    {   ColorPicker colorPicker = new ColorPicker();
+        colorPicker.setOnAction(e->chooseColor(colorPicker.getValue()));
+
         createColorGird();
+        bottomBox.getChildren().addAll(colorGird,colorPicker);
     }
 
     private void createColorGird()
@@ -48,7 +57,7 @@ public class StylePanel
         {   x=0;
         	y++;
         }
-        colorPanel.getChildren().add(node);
+        colorGird.getChildren().add(node);
     }
 
     private void setBoxBehavior(Shape box)
@@ -56,7 +65,7 @@ public class StylePanel
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2)
-            {   chooseColor(box);
+            {   chooseColor(box.getFill());
             }   
         }
         });
@@ -81,12 +90,12 @@ public class StylePanel
         
     }
 
-    private void chooseColor(Shape box)
+    private void chooseColor(Paint color)
     {   EtoileControl selectedEtoile = cielControl.getSelectedStar();
         if(selectedEtoile==null) return;
         Paint oldColor = selectedEtoile.getColor();
-        selectedEtoile.setColor(box.getFill());
-        ColorAction action = new ColorAction(box.getFill(),oldColor,selectedEtoile);
+        selectedEtoile.setColor(color);
+        ColorAction action = new ColorAction(color,oldColor,selectedEtoile);
         HoustonCenter.recordAction(action);
     }
 

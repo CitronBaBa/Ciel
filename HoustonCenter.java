@@ -7,7 +7,8 @@ public class HoustonCenter
     
     // for events
     private static List<CielEvent> eventQueue = new LinkedList<>();
-        
+    private static List<CielEventSubscriber> subscribers = new ArrayList<>();
+    
     public static void recordAction(CielAction action)
     {   actionList.add(++index,action);
         actionList = actionList.subList(0,index+1);
@@ -20,6 +21,16 @@ public class HoustonCenter
     public static void redoAction()
     {   if(index==actionList.size()-1) return;
         actionList.get(++index).redo();
+    }
+
+    public static void subscribe(CielEventSubscriber subscriber)
+    {   subscribers.add(subscriber);
+    }
+
+    public static void propagateEvent(CielEvent event)
+    {   for(CielEventSubscriber s : subscribers)
+        {   s.reactOnEvent(event);
+        }
     }
     
 }

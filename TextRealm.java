@@ -19,31 +19,51 @@ import javafx.scene.effect.*;
 
 // a subscription system may be introduced for the interaction
 // between this and cielControl 
-public class TextRealm implements Initializable
+public class TextRealm implements Initializable,CielEventSubscriber
 {   private Node realm;
     EtoileControl targetEtoile;
+    private CielControl cielControl;
+
     //fxml
     public TextArea textArea;
     public Button save;
+
     public void initialize(URL location, ResourceBundle resources) 
     {   saveButton();
     }
 
-    public TextRealm() throws Exception
+    public void reactOnEvent(CielEvent event)
+    {   if(event == CielEvent.ChangeFocus)
+        {   changeStar();
+        }
+    }
+
+    public TextRealm(CielControl cielControl) throws Exception
     {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TextRealm.fxml"));
         fxmlLoader.setController(this);
         realm = fxmlLoader.load();
+        this.cielControl = cielControl;
+        HoustonCenter.subscribe(this);
     }
     public Node getRealm() {  return realm;}
-    public void changeStar (EtoileControl newEtoile)
-    {   targetEtoile = newEtoile;
-        textArea.setText(newEtoile.getEtoile().getText());
+
+    private void changeStar ()
+    {   targetEtoile = cielControl.getSelectedStar();
+        if(targetEtoile!=null)
+        {   textArea.setText(targetEtoile.getEtoile().getText());
+        }
+        else deactivate();
     }
+    private void deactivate()
+    {   ;
+    }
+
     private void saveButton()
     {   save.setOnAction(e->saveText());
     }
     private void saveText()
-    {   targetEtoile.getEtoile().setText(textArea.getText());
+    {   if(targetEtoile==null) return;
+        targetEtoile.getEtoile().setText(textArea.getText());
     }
     
 }   

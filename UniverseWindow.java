@@ -24,8 +24,10 @@ import javafx.scene.effect.*;
     not when it is added to its parent in fxml
 */
 public class UniverseWindow extends Application implements Initializable
-{   //fxml
+{   private GlobalSatellite globals;
+    //fxml
     public Pane cielArea;
+    public VBox cielBox;
     public ScrollPane cielScrolPane;
     public BorderPane root;
 
@@ -48,10 +50,11 @@ public class UniverseWindow extends Application implements Initializable
         fxmlLoader.setController(this);
         Parent view = fxmlLoader.load();
 
-        textRealm = new TextRealm();
+        globals = GlobalSatellite.getSatellite();
+        cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
+    
+        textRealm = new TextRealm(cielControl);
         root.setRight(textRealm.getRealm());
-
-        cielControl = new CielControl(cielArea,cielScrolPane,textRealm);
 
         stylePanel = new StylePanel(cielControl);
         root.setBottom(stylePanel.getPanel());
@@ -68,6 +71,7 @@ public class UniverseWindow extends Application implements Initializable
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
         primaryStage.show();
+        globals.setStage(primaryStage);
     }
     
     private void keyControl(Scene scene)

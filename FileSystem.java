@@ -109,7 +109,7 @@ public class FileSystem
      }
 
     public static void main(String[] args)
-    {   FileSystem handler = new FileSystem("./resources/");
+    {   FileSystem handler = new FileSystem("./data/");
         handler.test();
         System.out.println("test passed");
     }
