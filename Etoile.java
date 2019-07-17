@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.Serializable;
 
 public class Etoile implements Serializable
-{   private String name;
+{   private String name = "Node";
     private String text = "";
 
     // remebering two coordinates to facilitate operations in javafx
@@ -26,6 +26,10 @@ public class Etoile implements Serializable
     {   this.name = name;
         this.isSubStar = isSubStar;
         this.parentStar = parentStar;
+    }
+    public void updateCoordination(Coordination newPos)
+    {   this.etoilePos.setX(newPos.getX());
+        this.etoilePos.setY(newPos.getY());
     }
     public void updateCoordination(Coordination newPos, Coordination viewPos)
     {   this.etoilePos.setX(newPos.getX());

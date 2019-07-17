@@ -32,6 +32,7 @@ public class EtoileControl implements Initializable
     public StackPane primaryView;
     public VBox childArea;
     public Label name;
+    public TextField nameField;
     public Pane backgroundPane;
 
     private Pane cielArea;
@@ -44,8 +45,8 @@ public class EtoileControl implements Initializable
     List<AlignControl> previousAligns = new ArrayList<>();
 
     public void initialize(URL location, ResourceBundle resources)
-    {   name.setText(monEtoile.getName());
-        innerMouseSetUp();
+    {   innerMouseSetUp();
+        textSetUp();
         autoUpdatePostion();
 
         // the first adjusting itself will not have the reference of its
@@ -61,8 +62,8 @@ public class EtoileControl implements Initializable
     {   if(monEtoile.getViewCoor()!=null) // when it is reloaded to the scene
         locateDirectly(monEtoile.getViewCoor());
         else  // when it's created from blank fxml
-        {   double x0 = monEtoile.getCoordination().getX() - etoileShape.getRadiusX()*etoileView.getScaleX();
-            double y0 = monEtoile.getCoordination().getY() - etoileShape.getRadiusY()*etoileView.getScaleY();
+        {   double x0 = monEtoile.getCoordination().getX() - etoileShape.getRadiusX();
+            double y0 = monEtoile.getCoordination().getY() - etoileShape.getRadiusY();
             Coordination newCoor = new Coordination(x0,y0);
             locateDirectly(newCoor);
         }
@@ -222,6 +223,7 @@ public class EtoileControl implements Initializable
         childPath.getElements().add(moveTo);
         childPath.getElements().add(quadCurveTo);
         childPath.getElements().add(lineTo);
+        childPath.setId("curve");
         childStar.setChildDraw(childPath);
         cielArea.getChildren().add(childPath);
     }
@@ -258,6 +260,7 @@ public class EtoileControl implements Initializable
     {   etoileView.relocate(adjustedCoor.getX(),adjustedCoor.getY());
     }
 
+    // update the center point to model
     private void autoUpdatePostion()
     {   etoileShape.localToSceneTransformProperty().addListener((obs, oldT, newT) ->
         {   Point2D originalPosInScene = newT.transform(new Point2D(0,0));
@@ -281,16 +284,39 @@ public class EtoileControl implements Initializable
     }
 
     private Coordination giveAdjustedCoordination(Coordination newCoor)
-    {   Coordination original = newCoor;
-        double oriX = original.getX();
-        double oriY = original.getY();
-        double finalX = oriX - etoileShape.getLayoutX();
-        double finalY = oriY - etoileShape.getLayoutY();
+    {   Point2D inParent = etoileShape.getLocalToParentTransform().transform(new Point2D(0,0));
+        Point2D inEtoile = primaryView.getLocalToParentTransform().transform(inParent);
+        double oriX = newCoor.getX();
+        double oriY = newCoor.getY();
+        double shapeCenterToStarCenter = etoileView.getLayoutBounds().getWidth()/2-inEtoile.getX();
+        oriX = oriX + (cielModel.getScale()-1)*shapeCenterToStarCenter; 
+        double finalX = oriX - inEtoile.getX();
+        double finalY = oriY - inEtoile.getY();
+        //System.out.println(inParent);
         return new Coordination(finalX,finalY);
+    }
+    // {   Point2D ShapeOri = etoileShape.getLocalToSceneTransform().transform(new Point2D(0,0));
+    //     Point2D overallOri = etoileView.getLocalToSceneTransform().transform(new Point2D(0,0));
+    //     Point2D adjust = new Point2D(ShapeOri.getX()-overallOri.getX(),ShapeOri.getY()-overallOri.getY());
+    //     double finalX = newCoor.getX() - adjust.getX();
+    //     double finalY = newCoor.getY() - adjust.getY();
+    //     System.out.println("adjustment:"+adjust);
+    //     return new Coordination(finalX,finalY);
+    private void textSetUp()
+    {   primaryView.getChildren().remove(nameField);
+        nameField.setText(monEtoile.getName());
+        name.textProperty().bind(nameField.textProperty());
     }
 
     private void innerMouseSetUp()
-    {   name.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    {   
+        nameField.setOnAction(e->
+        {   monEtoile.setName(nameField.getText());
+            primaryView.getChildren().remove(nameField);
+            primaryView.getChildren().add(name);
+        });
+
+        name.setOnMouseClicked(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2)
@@ -298,19 +324,24 @@ public class EtoileControl implements Initializable
             }
         }
         });
+
+        primaryView.setOnMouseEntered(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event)
+        {   addEffect();
+        }
+        });
+        primaryView.setOnMouseExited(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event)
+        {   removeEffect();
+        }
+        });
     }
 
     private void innerMouseAction()
     {   primaryView.getChildren().remove(name);
-        TextField input = new TextField();
-        input.setPrefWidth(50);
-        input.setOnAction(e->
-        {   name.setText(input.getText());
-            monEtoile.setName(input.getText());
-            primaryView.getChildren().remove(input);
-            primaryView.getChildren().add(name);
-        });
-        primaryView.getChildren().add(input);
+        primaryView.getChildren().add(nameField);
     }
 
     public void addEffect()

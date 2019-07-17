@@ -186,8 +186,8 @@ public class CielControl
     }
     private void addingStarOperation(Coordination newCoor)
     {   Etoile newEtoile = new Etoile("empty");
+        newEtoile.updateCoordination(newCoor);
         EtoileControl controller = drawOneStar(newEtoile,"Etoile.fxml");
-        controller.updateStarPos(newCoor);
     }
 
     private void drawOneAlign(Align align)
@@ -270,20 +270,8 @@ public class CielControl
             }
             if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
             {   selectStar(controller);
-                event.consume();
             }
-        }
-        });
-        controller.getPrimaryView().setOnMouseEntered(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent event)
-        {   controller.addEffect();
-        }
-        });
-        controller.getPrimaryView().setOnMouseExited(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent event)
-        {   controller.removeEffect();
+            event.consume();
         }
         });
     }
@@ -371,12 +359,19 @@ public class CielControl
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
             {   unSelectStar();
             }
+            if(event.getButton()==MouseButton.SECONDARY && event.getClickCount()==1)
+            {   double x = event.getX();
+                double y = event.getY();
+                if(!cielArea.getChildren().contains(backgroundPopUp))
+                cielArea.getChildren().add(backgroundPopUp);
+                backgroundPopUp.relocate(x,y);
+            }
         }
         });
 
         cielArea.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event)
-        {   if(newAlignCurve!=null)
+        {   if(newAlignCurve!=null && event.getButton()==MouseButton.PRIMARY)
             {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 alignOneStar(newCoor);
                 event.consume();
@@ -398,18 +393,19 @@ public class CielControl
     }
 
     private void backgroundMouseSetUp(Node background)
-    {   background.setOnMouseClicked(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent event)
-        {   if(event.getButton()==MouseButton.SECONDARY && event.getClickCount()==1)
-            {   double x = event.getX();
-                double y = event.getY();
-                if(!cielArea.getChildren().contains(backgroundPopUp))
-                cielArea.getChildren().add(backgroundPopUp);
-                backgroundPopUp.relocate(x,y);
-            }
-        }
-        });
+    {   
+        // background.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        // @Override
+        // public void handle(MouseEvent event)
+        // {   if(event.getButton()==MouseButton.SECONDARY && event.getClickCount()==1)
+        //     {   double x = event.getX();
+        //         double y = event.getY();
+        //         if(!cielArea.getChildren().contains(backgroundPopUp))
+        //         cielArea.getChildren().add(backgroundPopUp);
+        //         backgroundPopUp.relocate(x,y);
+        //     }
+        // }
+        // });
     }
 
     private void alignOneStar(Coordination targetCoor)

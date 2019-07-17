@@ -5,7 +5,7 @@ import javafx.beans.property.*;
 public class Ciel implements Serializable
 {   private List<Etoile> etoilesOnSky = new ArrayList<>();
     private List<Align> alignsOnSky = new ArrayList<>();
-    private transient DoubleProperty scaleCoeeficent = new SimpleDoubleProperty(0.7f);
+    private transient DoubleProperty scaleCoeeficent = new SimpleDoubleProperty(1.0f);
 
     public List<Etoile> getParentEtoiles(){   return etoilesOnSky;}
     public List<Align> getAligns(){   return alignsOnSky;}
@@ -13,7 +13,9 @@ public class Ciel implements Serializable
     public void addParentStar(Etoile node)
     {   etoilesOnSky.add(node);
     }
-
+    public double getScale()
+    {   return scaleCoeeficent.get();
+    }
     public DoubleProperty getScaleProperty()
     {   return scaleCoeeficent;
     }

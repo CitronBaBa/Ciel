@@ -62,8 +62,10 @@ public class AlignControl
         curveLine.setStartY(0);
         curveLine.setControlX(50);
         curveLine.setControlX(50);
-        curveLine.setFill(null);
-        curveLine.setStroke(Color.BLACK);
+        //curveLine.setFill(null);
+        //curveLine.setStroke(Color.BLACK);
+        
+        curveLine.setId("curve");
     }
 
 

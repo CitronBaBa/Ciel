@@ -1,0 +1,12 @@
+#nameField {
+    /* -fx-background-color: rgb(255,255,255,0.4); */
+}
+
+#curve {
+    -fx-smooth: true;
+    -fx-stroke: rgb(190,210,210);
+    -fx-fill: null;
+    -fx-stroke-width: 2.5;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}

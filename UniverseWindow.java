@@ -67,6 +67,7 @@ public class UniverseWindow extends Application implements Initializable
         // BorderPane.setAlignment(btn,Pos.TOP_RIGHT);
         // root.setLeft(btn);
         Scene scene = new Scene(view, 1300, 900);
+        scene.getStylesheets().add("style/style.css");
         keyControl(scene);
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
