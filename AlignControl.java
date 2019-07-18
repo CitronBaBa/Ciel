@@ -52,9 +52,7 @@ public class AlignControl
     }
 
     public static void setCurveCoor(QuadCurve curveLine, Coordination from, Coordination to)
-    {   //double deltaX = to.getX()-from.getX();
-        //double deltaY = to.getY()-from.getY();
-        curveLine.endXProperty().bind(to.getXProperty().subtract(from.getXProperty()));
+    {   curveLine.endXProperty().bind(to.getXProperty().subtract(from.getXProperty()));
         curveLine.endYProperty().bind(to.getYProperty().subtract(from.getYProperty()));
         curveLine.layoutXProperty().bind(from.getXProperty());
         curveLine.layoutYProperty().bind(from.getYProperty());
@@ -62,9 +60,6 @@ public class AlignControl
         curveLine.setStartY(0);
         curveLine.setControlX(50);
         curveLine.setControlX(50);
-        //curveLine.setFill(null);
-        //curveLine.setStroke(Color.BLACK);
-        
         curveLine.setId("curve");
     }
 

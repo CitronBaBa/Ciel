@@ -59,16 +59,18 @@ public class CielControl
         // loading
         this.cielModel = cielModel;
         for(Etoile e : cielModel.getParentEtoiles())
-        {   EtoileControl parentStar = drawOneStar(e, "Etoile.fxml");
+        {   EtoileControl parentStar = drawOneStar(e);
             drawChildStar(parentStar);
         }
         for(Align a : cielModel.getAligns())
         {   drawOneAlign(a);
         }
     }
+
+// ideally this should be moved to etoileControl
     private void drawChildStar(EtoileControl parentStar)
     {   for(Etoile eSub : parentStar.getEtoile().getChildren())
-        {   EtoileControl childStar = drawOneStar(eSub,"EtoileSub.fxml");
+        {   EtoileControl childStar = drawOneStar(eSub);
             if(eSub.getChildren().size()>0)
             drawChildStar(childStar);
         }
@@ -95,7 +97,7 @@ public class CielControl
         popUpMenu();
 
         Etoile star0 = new Etoile("Node");
-        drawOneStar(star0, "Etoile.fxml");
+        drawOneStar(star0);
     }
     private void cielBoundSetUp()
     {   //cielArea.prefWidthProperty().bind(cielBox.widthProperty());
@@ -186,7 +188,7 @@ public class CielControl
     private void addingStarOperation(Coordination newCoor)
     {   Etoile newEtoile = new Etoile("empty");
         newEtoile.updateCoordination(newCoor);
-        EtoileControl controller = drawOneStar(newEtoile,"Etoile.fxml");
+        EtoileControl controller = drawOneStar(newEtoile);
     }
 
     private void drawOneAlign(Align align)
@@ -200,13 +202,11 @@ public class CielControl
         HoustonCenter.recordAction(new AlignAction(newAlign,false));
     }
 
-    private EtoileControl drawOneStar(Etoile star, String viewName)
-    {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(viewName));
-        EtoileControl controller = new EtoileControl(star,etoileControls,alignControls,cielArea,cielModel);
-        fxmlLoader.setController(controller);
-        try {   fxmlLoader.load(); }
-        catch(Exception e) {  e.printStackTrace(); return null; }
-
+    private EtoileControl drawOneStar(Etoile star)
+    {   EtoileControl controller;
+        if(star.isSubStar()) 
+            controller = new EtoileControl_EmptyShape(star,etoileControls,alignControls,cielArea,cielModel);
+        else controller = new EtoileControl(star,etoileControls,alignControls,cielArea,cielModel);
         starSetUp(controller);
         HoustonCenter.recordAction(new AddingAction(controller,false));
         return controller;
@@ -318,7 +318,7 @@ public class CielControl
         cielArea.getChildren().remove(starPopUp);
     }
     private void branchingOperation(EtoileControl parentStar)
-    {   EtoileControl newStar = drawOneStar(new Etoile("empty",true,parentStar.getEtoile()),"EtoileSub.fxml");
+    {   EtoileControl newStar = drawOneStar(new Etoile("empty",true,parentStar.getEtoile()));
         cielArea.getChildren().remove(starPopUp);
     }
 

@@ -1,6 +1,6 @@
 default: UniverseWindow
-jfx = --module-path FX2/lib --add-modules=javafx.controls --add-modules=javafx.fxml --add-modules=richtextfx
+jfx = --module-path FX/lib --add-modules=javafx.controls --add-modules=javafx.fxml --add-modules=richtextfx
 
 UniverseWindow:
-	javac $@.java EtoileControl.java Coordination.java TextRealm.java CielControl.java $(jfx)
+	javac $@.java EtoileControl.java Coordination.java TextRealm.java CielControl.java EtoileControl_EmptyShape.java $(jfx)
 	java $(jfx) UniverseWindow
