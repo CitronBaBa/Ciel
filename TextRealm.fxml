@@ -8,11 +8,6 @@
 
 <VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TextArea fx:id="textArea" minWidth="300.0" prefHeight="600.0" prefWidth="300.0">
-         <effect>
-            <ColorAdjust />
-         </effect>
-      </TextArea>
       <Button fx:id="save" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="23.0" prefWidth="87.0" text="Save" />
    </children>
    <padding>

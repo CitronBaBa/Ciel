@@ -22,7 +22,7 @@ public class GlobalSatellite
 {   private static GlobalSatellite satellite;
 
     //globals
-    Stage mainStage;
+    private Stage mainStage;
 
     private GlobalSatellite()
     {  ;

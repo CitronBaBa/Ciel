@@ -50,6 +50,7 @@ public class topMenuControl
     private void saving()
     {   Ciel cielModel = cielControl.getCielModel();
         String path = askSaveFileName();
+        if(path==null) return;
         FileSystem fileHandler = new FileSystem("");
         fileHandler.writeObjectTo(path,cielModel);
     }
@@ -63,6 +64,7 @@ public class topMenuControl
 
     private void reading()
     {   String path = askReadFileName();
+        if(path==null) return;
         FileSystem fileHandler = new FileSystem("");
         Ciel cielModel = (Ciel) fileHandler.readObjectFrom(path);
         cielControl.loadFromCielModel(cielModel);
@@ -79,5 +81,5 @@ public class topMenuControl
     private void removing()
     {   cielControl.removeSelected();
     }
-    
-}   
+
+}

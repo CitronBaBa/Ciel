@@ -10,7 +10,7 @@
 
 <BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <ScrollPane fx:id="cielScrolPane" cacheHint="QUALITY" prefHeight="679.0" prefViewportHeight="400.0" prefViewportWidth="300.0" prefWidth="1025.0" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="cielScrolPane" cacheHint="QUALITY" prefHeight="600.0" prefViewportHeight="400.0" prefViewportWidth="300.0" prefWidth="700.0" BorderPane.alignment="CENTER">
          <content>
             <VBox fx:id="cielBox" alignment="CENTER">
                <children>

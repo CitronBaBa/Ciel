@@ -18,17 +18,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
 // a subscription system may be introduced for the interaction
-// between this and cielControl 
+// between this and cielControl
 public class TextRealm implements Initializable,CielEventSubscriber
-{   private Node realm;
-    EtoileControl targetEtoile;
+{   private VBox realm;
+    private EtoileControl targetEtoile;
     private CielControl cielControl;
+    private GlobalSatellite globals;
 
+    private JavaArea javaArea;
     //fxml
-    public TextArea textArea;
     public Button save;
 
-    public void initialize(URL location, ResourceBundle resources) 
+    public void initialize(URL location, ResourceBundle resources)
     {   saveButton();
     }
 
@@ -39,18 +40,33 @@ public class TextRealm implements Initializable,CielEventSubscriber
     }
 
     public TextRealm(CielControl cielControl) throws Exception
-    {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TextRealm.fxml"));
+    {   globals = GlobalSatellite.getSatellite();
+        this.cielControl = cielControl;
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TextRealm.fxml"));
         fxmlLoader.setController(this);
         realm = fxmlLoader.load();
-        this.cielControl = cielControl;
         HoustonCenter.subscribe(this);
+
+        codeAreaSetUp();
+        dynamicSizing();
     }
-    public Node getRealm() {  return realm;}
+    public Region getRealm() {  return realm;}
+
+    private void codeAreaSetUp()
+    {   javaArea = new JavaArea();
+        realm.getChildren().add(0,javaArea.getArea());
+        //String code = javaArea.getCode();
+    }
+
+    private void dynamicSizing()
+    {   javaArea.getArea().prefWidthProperty().bind(realm.prefWidthProperty());
+        javaArea.getArea().prefHeightProperty().bind(realm.prefHeightProperty());
+    }
 
     private void changeStar ()
     {   targetEtoile = cielControl.getSelectedStar();
         if(targetEtoile!=null)
-        {   textArea.setText(targetEtoile.getEtoile().getText());
+        {   javaArea.loadText(targetEtoile.getEtoile().getText());
         }
         else deactivate();
     }
@@ -63,7 +79,7 @@ public class TextRealm implements Initializable,CielEventSubscriber
     }
     private void saveText()
     {   if(targetEtoile==null) return;
-        targetEtoile.getEtoile().setText(textArea.getText());
+        targetEtoile.getEtoile().setText(javaArea.getCode());
     }
-    
-}   
+
+}

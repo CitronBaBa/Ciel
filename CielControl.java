@@ -113,7 +113,6 @@ public class CielControl
     private void scrollAndZoomSetUp()
     {   cielBox.setOnScroll(e ->
         {   e.consume();
-            System.out.println("scrolled : " +e.getDeltaX());
             onScroll(e.getDeltaY(), new Point2D(e.getX(), e.getY()));
         });
     }
@@ -156,7 +155,7 @@ public class CielControl
         Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
         //cielScrolPane.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
         //cielScrolPane.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
-        System.out.println("adjust "+ adjustment);
+
     }
 
 //background must be the first element of cielarea
@@ -393,7 +392,7 @@ public class CielControl
     }
 
     private void backgroundMouseSetUp(Node background)
-    {   
+    {
         // background.setOnMouseClicked(new EventHandler<MouseEvent>() {
         // @Override
         // public void handle(MouseEvent event)

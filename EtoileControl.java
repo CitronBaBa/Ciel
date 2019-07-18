@@ -24,7 +24,7 @@ import javafx.scene.paint.*;
 
 public class EtoileControl implements Initializable
 {   // total view
-    public Node etoileView;
+    public Region etoileView;
     private Node childDraw;
 
     // details
@@ -47,26 +47,19 @@ public class EtoileControl implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {   innerMouseSetUp();
         textSetUp();
-        autoUpdatePostion();
-
         // the first adjusting itself will not have the reference of its
         // layout position in the parent, as it has not been added
         // locateWithAdjustment(monEtoile.getCoordination());
         // , therefore, should not be used
-        initalLocate();
         scalingSetUp();
+        initalLocate();
         addYourself();
+        autoUpdatePostion();
     }
 
     private void initalLocate()
-    {   if(monEtoile.getViewCoor()!=null) // when it is reloaded to the scene
-        locateDirectly(monEtoile.getViewCoor());
-        else  // when it's created from blank fxml
-        {   double x0 = monEtoile.getCoordination().getX() - etoileShape.getRadiusX();
-            double y0 = monEtoile.getCoordination().getY() - etoileShape.getRadiusY();
-            Coordination newCoor = new Coordination(x0,y0);
-            locateDirectly(newCoor);
-        }
+    {   etoileView.layout();
+        updateStarPos(monEtoile.getCoordination());
     }
 
     private void scalingSetUp()
@@ -79,7 +72,7 @@ public class EtoileControl implements Initializable
     public Node getView(){   return this.etoileView;}
     public Node getPrimaryView() {  return primaryView;}
     public VBox getChildArea() {  return childArea;}
-    public Node getShape() {  return etoileShape;}
+    public Ellipse getShape() {  return etoileShape;}
     public DoubleProperty getShapeYProperty()
     {   return etoileShape.centerYProperty();
     }
@@ -185,23 +178,25 @@ public class EtoileControl implements Initializable
         cielArea.getChildren().add(path);
     }
 
-    public void addChildDrawing(EtoileControl childStar)
+    private void addChildDrawing(EtoileControl childStar)
     {   Path childPath = new Path();
         childPath.relocate(0,0);
         Coordination coor = monEtoile.getCoordination();
-        //System.out.println(etoileShape.getLayoutX()+", "+etoileShape.getLayoutY());
+        DoubleProperty childRadiusX = childStar.getShape().radiusXProperty();
+        DoubleProperty childRadiusY = childStar.getShape().radiusYProperty();
+
         MoveTo moveTo = new MoveTo();
         moveTo.xProperty().bind(coor.getXProperty().add
-                     (getShapeRaidusXProperty().multiply(cielModel.getScaleProperty())));
+                     (etoileShape.radiusXProperty().multiply(cielModel.getScaleProperty())));
         moveTo.yProperty().bind(coor.getYProperty());
 
         QuadCurveTo quadCurveTo = new QuadCurveTo();
         quadCurveTo.xProperty().bind(
                 childStar.getEtoile().getCoordination().getXProperty()
-                .subtract(childStar.getShapeRaidusXProperty().multiply(cielModel.getScaleProperty())));
+                .subtract(childRadiusX.multiply(cielModel.getScaleProperty())));
         quadCurveTo.yProperty().bind(
                 childStar.getEtoile().getCoordination().getYProperty()
-                .add(childStar.getShapeRaidusYProperty().multiply(cielModel.getScaleProperty()))
+                .add(childRadiusY.multiply(cielModel.getScaleProperty()))
         );
         quadCurveTo.controlXProperty().bind(
                 childStar.getEtoile().getCoordination().getXProperty()
@@ -213,11 +208,11 @@ public class EtoileControl implements Initializable
         LineTo lineTo = new LineTo();
         lineTo.xProperty().bind(
                 childStar.getEtoile().getCoordination().getXProperty()
-                .add(childStar.getShapeRaidusXProperty().multiply(cielModel.getScaleProperty()))
+                .add(childRadiusX.multiply(cielModel.getScaleProperty()))
         );
         lineTo.yProperty().bind(
                 childStar.getEtoile().getCoordination().getYProperty()
-                .add(childStar.getShapeRaidusYProperty().multiply(cielModel.getScaleProperty()))
+                .add(childRadiusY.multiply(cielModel.getScaleProperty()))
         );
 
         childPath.getElements().add(moveTo);
@@ -289,7 +284,7 @@ public class EtoileControl implements Initializable
         double oriX = newCoor.getX();
         double oriY = newCoor.getY();
         double shapeCenterToStarCenter = etoileView.getLayoutBounds().getWidth()/2-inEtoile.getX();
-        oriX = oriX + (cielModel.getScale()-1)*shapeCenterToStarCenter; 
+        oriX = oriX + (cielModel.getScale()-1)*shapeCenterToStarCenter;
         double finalX = oriX - inEtoile.getX();
         double finalY = oriY - inEtoile.getY();
         //System.out.println(inParent);
@@ -309,7 +304,7 @@ public class EtoileControl implements Initializable
     }
 
     private void innerMouseSetUp()
-    {   
+    {
         nameField.setOnAction(e->
         {   monEtoile.setName(nameField.getText());
             primaryView.getChildren().remove(nameField);
@@ -373,32 +368,3 @@ public class EtoileControl implements Initializable
         //System.out.println(((Glow)targetNode.getEffect()).getLevel());
     }
 }
-
-    // private void resizeListen()
-    // {   childArea.widthProperty().addListener((obs, oldVal, newVal) ->
-    //     {   updateStarPos(monEtoile.getCoordination());  System.out.println("changing width");
-    //     });
-    //
-    //     childArea.heightProperty().addListener((obs, oldVal, newVal) ->
-    //     {   updateStarPos(monEtoile.getCoordination());  System.out.println("changing height");
-    //     });
-    // }
-    // private void updateChildCoorinations()
-    // {   for(Etoile childEtoie: monEtoile.getChildren())
-    //     {   updateOneChildCoor(childEtoie);
-    //     }
-    // }
-    // private void updateOneChildCoor(Etoile childEtoie)
-    // {   Node childNode = etoileMap.get(childEtoie).getView();
-    //     double childX = monEtoile.getCoordination().getX()-etoileShape.getLayoutX()+
-    //                 childArea.getLayoutX()+childNode.getLayoutX();
-    //     double childY = monEtoile.getCoordination().getY()-etoileShape.getLayoutY()+
-    //                 childArea.getLayoutY()+childNode.getLayoutY();
-    //     Coordination topLeftCoor = new Coordination(childX,childY);
-    //     etoileMap.get(childEtoie).updateCoorFromTopLeft(topLeftCoor);
-    // }
-    // public void updateCoorFromTopLeft(Coordination topLeftCoor)
-    // {   double finalX = topLeftCoor.getX() + etoileShape.getLayoutX();
-    //     double finalY = topLeftCoor.getY() + etoileShape.getLayoutY();
-    //     updateCoor(new Coordination(finalX,finalY));
-    // }

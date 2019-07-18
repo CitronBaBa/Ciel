@@ -16,7 +16,7 @@
                   <Region />
                   <StackPane fx:id="primaryView" cache="true" prefHeight="96.0" prefWidth="109.0">
                      <children>
-                        <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="#3da1ff" radiusX="60.0" radiusY="48.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="#ffaaa5" radiusX="60.0" radiusY="48.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
                         <TextField id="nameField" fx:id="nameField" alignment="CENTER" style="-fx-background-color: ;" text="Label">
                            <font>
                               <Font size="21.0" />

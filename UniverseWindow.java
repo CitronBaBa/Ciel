@@ -50,9 +50,17 @@ public class UniverseWindow extends Application implements Initializable
         fxmlLoader.setController(this);
         Parent view = fxmlLoader.load();
 
+        Scene scene = new Scene(view, 1100, 800);
+        scene.getStylesheets().add("style/style.css");
+        scene.getStylesheets().add("style/javaKeyword.css");
+        keyControl(scene);
+        primaryStage.setTitle("Ciel");
+        primaryStage.setScene(scene);
         globals = GlobalSatellite.getSatellite();
+        globals.setStage(primaryStage);
+
         cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
-    
+
         textRealm = new TextRealm(cielControl);
         root.setRight(textRealm.getRealm());
 
@@ -63,28 +71,27 @@ public class UniverseWindow extends Application implements Initializable
         BorderPane.setAlignment(topMenu.getPanel(),Pos.CENTER_RIGHT);
         root.setTop(topMenu.getPanel());
 
-        // Button btn = new Button("hahaha");
-        // BorderPane.setAlignment(btn,Pos.TOP_RIGHT);
-        // root.setLeft(btn);
-        Scene scene = new Scene(view, 1300, 900);
-        scene.getStylesheets().add("style/style.css");
-        keyControl(scene);
-        primaryStage.setTitle("Ciel");
-        primaryStage.setScene(scene);
+        dynamicSizing();
         primaryStage.show();
-        globals.setStage(primaryStage);
     }
-    
+
+    private void dynamicSizing()
+    {   Scene mainScene = globals.getStage().getScene();
+        textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(0.45));
+        textRealm.getRealm().prefHeightProperty().bind(cielScrolPane.heightProperty());
+        cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(0.55));
+    }
+
     private void keyControl(Scene scene)
     {   final KeyCombination keyCombinationShift1 = new KeyCodeCombination(
         KeyCode.Z, KeyCombination.CONTROL_DOWN);
         final KeyCombination keyCombinationShift2 = new KeyCodeCombination(
             KeyCode.Z, KeyCombination.CONTROL_DOWN,KeyCombination.SHIFT_DOWN);
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-        public void handle(KeyEvent event) 
-        {   if(keyCombinationShift2.match(event)) 
+        public void handle(KeyEvent event)
+        {   if(keyCombinationShift2.match(event))
             HoustonCenter.redoAction();
-            if(keyCombinationShift1.match(event)) 
+            if(keyCombinationShift1.match(event))
             HoustonCenter.undoAction();
         }});
     }

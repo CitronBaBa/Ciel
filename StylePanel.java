@@ -31,7 +31,7 @@ public class StylePanel
     {   this.cielControl = cielControl;
         init();
     }
-    
+
     private void init()
     {   ColorPicker colorPicker = new ColorPicker();
         colorPicker.setOnAction(e->chooseColor(colorPicker.getValue()));
@@ -41,8 +41,8 @@ public class StylePanel
     }
 
     private void createColorGird()
-    {   for(int i=0; i<50;i++)
-        {   drawOneColorBox(Color.rgb(i*5,i*2,i*2));
+    {   for(Color c : colorPalette)
+        {   drawOneColorBox(c);
         }
     }
     private void drawOneColorBox(Color color)
@@ -64,9 +64,9 @@ public class StylePanel
     {   box.setOnMouseClicked(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
-        {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2)
+        {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
             {   chooseColor(box.getFill());
-            }   
+            }
         }
         });
 
@@ -75,7 +75,7 @@ public class StylePanel
         public void handle(MouseEvent event)
         {   if(event.getEventType() == MouseEvent.MOUSE_ENTERED)
             {   box.setEffect(new Glow(0.8));
-            }   
+            }
         }
         });
 
@@ -84,10 +84,10 @@ public class StylePanel
         public void handle(MouseEvent event)
         {   if(event.getEventType() == MouseEvent.MOUSE_EXITED)
             {   box.setEffect(null);
-            }   
+            }
         }
         });
-        
+
     }
 
     private void chooseColor(Paint color)
@@ -103,7 +103,7 @@ public class StylePanel
     {   Paint newColor;
         Paint oldColor;
         EtoileControl target;
-    
+
         public ColorAction(Paint newColor, Paint oldColor, EtoileControl target)
         {   this.newColor = newColor;
             this.oldColor = oldColor;
@@ -116,5 +116,18 @@ public class StylePanel
         {   target.setColor(newColor);
         }
     }
-    
-}   
+
+    private static Color[] colorPalette = {
+      Color.rgb(255, 255, 255, 1),
+      Color.rgb(132, 220, 198, 1),
+      Color.rgb(165, 255, 214, 1),
+      Color.rgb(255, 166, 158, 1),
+      Color.rgb(255, 104, 107, 1),
+      Color.rgb(150,206,180),
+      Color.rgb(255,238,173),
+      Color.rgb(255,111,105),
+      Color.rgb(255,204,92),
+      Color.rgb(136,216,176),
+   };
+
+}
