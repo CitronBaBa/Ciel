@@ -4,6 +4,7 @@ import java.io.Serializable;
 public class Etoile implements Serializable
 {   private String name = "Node";
     private String text = "";
+    private double[] color = null;
 
     // remebering two coordinates to facilitate operations in javafx
     private Coordination etoilePos = new Coordination(100,100);
@@ -18,7 +19,7 @@ public class Etoile implements Serializable
         this.parentStar = parentStar;
     }
     public Etoile getParent() {   return parentStar;}
-    
+
     public Etoile(String name)
     {   this.name = name;
     }
@@ -36,7 +37,9 @@ public class Etoile implements Serializable
         this.etoilePos.setY(newPos.getY());
         this.viewPos = viewPos;
     }
-
+    
+    public void setColor(double[] color){   this.color = color;}
+    public double[] getColor() {  return this.color;}
     public String getName() {   return name;}
     public void setName(String name) { this.name = name;}
     public String getText() {   return text;}

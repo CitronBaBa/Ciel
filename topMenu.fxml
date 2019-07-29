@@ -4,8 +4,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<HBox fx:id="menuPanel" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="menuPanel" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <MenuBar>
         <menus>
@@ -27,5 +26,7 @@
           </Menu>
         </menus>
       </MenuBar>
+      <Region />
+      <Slider fx:id="slider" />
    </children>
 </HBox>

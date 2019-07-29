@@ -41,6 +41,7 @@ public class JavaArea
 
     public void loadText(String text)
     {   codeArea.replaceText(0,codeArea.getLength(),text);
+        codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText()));
         //refresh should be added here
     }
 

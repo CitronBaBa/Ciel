@@ -65,7 +65,7 @@ public class StylePanel
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
-            {   chooseColor(box.getFill());
+            {   chooseColor((Color)box.getFill());
             }
         }
         });
@@ -90,21 +90,21 @@ public class StylePanel
 
     }
 
-    private void chooseColor(Paint color)
+    private void chooseColor(Color color)
     {   EtoileControl selectedEtoile = cielControl.getSelectedStar();
         if(selectedEtoile==null) return;
-        Paint oldColor = selectedEtoile.getColor();
+        Color oldColor = selectedEtoile.getColor();
         selectedEtoile.setColor(color);
         ColorAction action = new ColorAction(color,oldColor,selectedEtoile);
         HoustonCenter.recordAction(action);
     }
 
     public static class ColorAction implements CielAction
-    {   Paint newColor;
-        Paint oldColor;
+    {   Color newColor;
+        Color oldColor;
         EtoileControl target;
 
-        public ColorAction(Paint newColor, Paint oldColor, EtoileControl target)
+        public ColorAction(Color newColor, Color oldColor, EtoileControl target)
         {   this.newColor = newColor;
             this.oldColor = oldColor;
             this.target = target;

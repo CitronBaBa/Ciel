@@ -17,6 +17,8 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.effect.*;
+import javafx.beans.binding.*;
+import javafx.beans.value.*;
 
 public class topMenuControl
 {   private CielControl cielControl;
@@ -25,11 +27,15 @@ public class topMenuControl
     public Node menuPanel;
     public MenuItem save;
     public MenuItem read;
-
     public MenuItem remove;
+    
+    public Slider slider;
 
     public Node getPanel()
     {   return menuPanel;
+    }
+    public ObservableDoubleValue getSlideValue()
+    {   return slider.valueProperty();
     }
 
     public topMenuControl(CielControl cielControl) throws Exception
@@ -45,6 +51,10 @@ public class topMenuControl
     {   save.setOnAction(e->saving());
         read.setOnAction(e->reading());
         remove.setOnAction(e->removing());
+
+        slider.setMax(0.8f);
+        slider.setMin(0.15f);
+        slider.setValue(0.55f);
     }
 
     private void saving()

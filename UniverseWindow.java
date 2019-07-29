@@ -16,6 +16,8 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
+import javafx.beans.binding.*;
+import javafx.beans.value.*;
 
 /// develop notes:
 /*  javafx calculates everything(layout, coordinate) after executing your program
@@ -77,9 +79,11 @@ public class UniverseWindow extends Application implements Initializable
 
     private void dynamicSizing()
     {   Scene mainScene = globals.getStage().getScene();
-        textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(0.45));
+        ObservableDoubleValue slideValue = topMenu.getSlideValue();
+        textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(
+            Bindings.subtract(1,slideValue)    ));
         textRealm.getRealm().prefHeightProperty().bind(cielScrolPane.heightProperty());
-        cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(0.55));
+        cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(slideValue));
     }
 
     private void keyControl(Scene scene)

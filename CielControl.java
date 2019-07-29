@@ -245,12 +245,7 @@ public class CielControl
                 event.consume();
             }
         });
-        // controller.getPrimaryView().setOnMouseDragOver(new EventHandler<MouseDragEvent>()
-        // {   public void handle(MouseDragEvent event)
-        //     {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
-        //         controller.updateStarPos(newCoor);
-        //     }
-        // });
+
         controller.getPrimaryView().setOnMouseDragExited(new EventHandler<MouseDragEvent>()
         {   public void handle(MouseDragEvent event)
             {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
@@ -259,6 +254,22 @@ public class CielControl
                 event.consume();
             }
         });
+        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_ENTERED, new EventHandler<MouseDragEvent>() 
+        // {   public void handle(MouseDragEvent event)
+        //     {   oldCoor.setX(controller.getEtoile().getCoordination().getX());
+        //         oldCoor.setY(controller.getEtoile().getCoordination().getY());
+        //         event.consume(); 
+        //     }
+        // });
+        // 
+        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED, new EventHandler<MouseDragEvent>() 
+        // {   public void handle(MouseDragEvent event)
+        //     {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+        //         Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
+        //         HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,controller));
+        //         event.consume();   
+        //     }
+        // });
 
         controller.getPrimaryView().setOnMouseClicked(new EventHandler<MouseEvent>() {
         @Override

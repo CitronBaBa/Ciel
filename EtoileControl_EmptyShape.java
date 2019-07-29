@@ -35,11 +35,21 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     {   return new Point2D(name.getWidth()/2,name.getHeight()/2);
     }
     protected Node getMainShape() { return name;}
+    protected void setShapeColor(Paint color)
+    {   name.setTextFill(color);
+    }
+    protected Color getShapeColor()
+    {   return (Color)name.getTextFill();
+    }
 
     @Override
     protected String getFxmlName() 
     {   if(getEtoile().isSubStar()) return "EtoileSub.fxml";
-        else return "Etoile.fxml";
+        else return "EtoileMain.fxml";
+    }
+
+    protected ObservableDoubleValue getWidthProperty()
+    {   return name.widthProperty();
     }
 
     //ciel coordinate system

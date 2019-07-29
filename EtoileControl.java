@@ -51,12 +51,11 @@ public class EtoileControl implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {   innerMouseSetUp();
         textSetUp();
-        // the first adjusting itself will not have the reference of its
-        // layout position in the parent, as it has not been added
-        // locateWithAdjustment(monEtoile.getCoordination());
-        // , therefore, should not be used
         scalingSetUp();
         addYourself();
+        initalLocate();
+        autoUpdatePostion();
+        initialStyling();
     }
 
     public EtoileControl(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
@@ -68,8 +67,6 @@ public class EtoileControl implements Initializable
         this.cielModel = cielModel;
         loadFromFxml();
         //loadChildren();
-        initalLocate();
-        autoUpdatePostion();
     }
     private void loadFromFxml()
     {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(getFxmlName()));
@@ -79,7 +76,7 @@ public class EtoileControl implements Initializable
     }
     protected String getFxmlName() 
     {   if(monEtoile.isSubStar()) return "EtoileSub.fxml";
-        else return "Etoile.fxml";
+        else return "EtoileMain.fxml";
     }
     
     /*  ideally child loading should be in this class
@@ -253,6 +250,10 @@ public class EtoileControl implements Initializable
         return coor.getYProperty();
     }
 
+    protected ObservableDoubleValue getWidthProperty()
+    {   return etoileShape.radiusXProperty().multiply(2.0f);
+    }
+
     private void childToChildDraw(EtoileControl childStar)
     {   Path childPath = new Path();
         childPath.relocate(0,0);
@@ -265,13 +266,19 @@ public class EtoileControl implements Initializable
         QuadCurveTo quadCurveTo = new QuadCurveTo();
         quadCurveTo.xProperty().bind(childStar.bottomLeftX());
         quadCurveTo.yProperty().bind(childStar.bottomLeftY());
-
+        
         quadCurveTo.controlXProperty().bind(
                 childStar.getEtoile().getCoordination().getXProperty()
                 .add(coor.getXProperty()).divide(2.0f)  );
         quadCurveTo.controlYProperty().bind(
                 childStar.getEtoile().getCoordination().getYProperty()
                 .add(coor.getYProperty()).divide(2.0f)  );
+
+        // ArcTo arcTo = new ArcTo();
+        // arcTo.xProperty().bind(childStar.bottomLeftX());
+        // arcTo.yProperty().bind(childStar.bottomLeftY());
+        // arcTo.radiusXProperty().bind(calculateRadius(childStar));
+        // arcTo.radiusYProperty().bind(calculateRadius(childStar));
 
         LineTo lineTo = new LineTo();
         lineTo.xProperty().bind(childStar.bottomRightX());
@@ -285,7 +292,20 @@ public class EtoileControl implements Initializable
         cielArea.getChildren().add(childPath);
     }
 
+    // private ObservableNumberValue calculateRadius(EtoileControl childStar)
+    // {   NumberBinding deltaX = bottomRightX().subtract(childStar.bottomLeftX());
+    //     NumberBinding deltaY = bottomRightY().subtract(childStar.bottomLeftY());
+    //     NumberBinding squareSum = deltaX.multiply(deltaX).add(deltaY.multiply(deltaY));
+    //     NumberBinding sumPlus = squareSum.divide(deltaY).divide(2.0f);
+    //     NumberBinding sumNeg = squareSum.divide(deltaY).divide(-2.0f);
+    //     NumberBinding radius = Bindings.when(deltaY.greaterThan(0.0f))
+    //              .then(sumPlus)
+    //              .otherwise(sumNeg);
+    //     return radius;
+    // }
+
     private void parentToChildDraw(EtoileControl childStar)
+
     {   Path childPath = new Path();
         childPath.relocate(0,0);
         Coordination coor = monEtoile.getCoordination();
@@ -317,12 +337,27 @@ public class EtoileControl implements Initializable
         cielArea.getChildren().add(childPath);
     }
 
-    public void setColor(Paint color)
+    private void initialStyling()
+    {   setShapeColor(getColor());
+    }
+
+    public void setColor(Color color)
+    {   setShapeColor(color);
+        double[] colorFigures = {color.getRed(),color.getGreen(),color.getBlue(),color.getOpacity()};
+        monEtoile.setColor(colorFigures);
+    }
+    public Color getColor()
+    {   double[] colorFigures = monEtoile.getColor();
+        if(colorFigures == null) return getShapeColor();
+        return new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
+    }
+    protected void setShapeColor(Paint color)
     {   etoileShape.setFill(color);
     }
-    public Paint getColor()
-    {   return etoileShape.getFill();
+    protected Color getShapeColor()
+    {   return (Color)etoileShape.getFill();
     }
+
 
     public void updateStarPos(Coordination newCoor)
     {   locateWithAdjustment(newCoor);
@@ -388,11 +423,11 @@ public class EtoileControl implements Initializable
     }
 
     private void innerMouseSetUp()
-    {
+    {   nameField.focusedProperty().addListener((obs, oldVal, newVal) -> 
+        {   if(newVal == false) finishEditting();
+        });
         nameField.setOnAction(e->
-        {   monEtoile.setName(nameField.getText());
-            nameField.setVisible(false);
-            name.setVisible(true);
+        {   finishEditting();
         });
 
         name.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -421,13 +456,17 @@ public class EtoileControl implements Initializable
     private void innerMouseAction()
     {   name.setVisible(false);
         nameField.setVisible(true);
-        // primaryView.getChildren().remove(name);
-        // primaryView.getChildren().add(nameField);
+        nameField.requestFocus();
+    }
+    private void finishEditting()
+    {   monEtoile.setName(nameField.getText());
+        nameField.setVisible(false);
+        name.setVisible(true);
     }
 
     public void addEffect()
     {   //System.out.println(monEtoile.getName()+" adding effect");
-        Node targetNode = this.getPrimaryView();
+        Node targetNode = this.getMainShape();
         if(targetNode.getEffect()==null)
         targetNode.setEffect(new Glow(0.5));
         else
@@ -439,7 +478,7 @@ public class EtoileControl implements Initializable
     }
     public void removeEffect()
     {   //System.out.println(monEtoile.getName()+" exit effect");
-        Node targetNode = this.getPrimaryView();
+        Node targetNode = this.getMainShape();
         if(targetNode.getEffect()==null)
         {   targetNode.setEffect(new Glow(0));
             System.out.println("removing null effect");
