@@ -23,12 +23,13 @@ public class CielControl
     private VBox cielBox;
     private ScrollPane cielScrolPane;
 
-    private double zoomIntensity = 0.002;
 
+    private double zoomIntensity = 0.002;
     private EtoileControl selectedEtoile;
     public EtoileControl getSelectedStar() {   return selectedEtoile;}
+
+    private GlobalSatellite globals;
     private Ciel cielModel;
-    public Ciel getCielModel() {   return cielModel;}
 
 // mapping between model object and graph object
 // used to quickly find controller
@@ -45,7 +46,8 @@ public class CielControl
 
 
     public CielControl(Pane cielArea, VBox cielBox, ScrollPane cielScrolPane)
-    {   cielModel = new Ciel();
+    {   globals = GlobalSatellite.getSatellite();
+        cielModel = globals.getCielModel();
         this.cielArea = cielArea;
         this.cielBox = cielBox;
         this.cielScrolPane = cielScrolPane;
@@ -53,7 +55,9 @@ public class CielControl
     }
 
     public void loadFromCielModel(Ciel cielModel)
-    {   // clear up
+    {   globals.setCielModel(cielModel);
+
+        // clear up
         removeEverything();
 
         // loading
@@ -182,8 +186,8 @@ public class CielControl
     private void addingStar()
     {   double x = backgroundPopUp.getLayoutX();
         double y = backgroundPopUp.getLayoutY();
-        addingStarOperation(new Coordination(x,y));
         cielArea.getChildren().remove(backgroundPopUp);
+        addingStarOperation(new Coordination(x,y));
     }
     private void addingStarOperation(Coordination newCoor)
     {   Etoile newEtoile = new Etoile("empty");

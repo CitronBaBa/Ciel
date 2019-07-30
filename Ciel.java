@@ -6,6 +6,7 @@ public class Ciel implements Serializable
 {   private List<Etoile> etoilesOnSky = new ArrayList<>();
     private List<Align> alignsOnSky = new ArrayList<>();
     private transient DoubleProperty scaleCoeeficent = new SimpleDoubleProperty(1.0f);
+    private CielJavaManager javaManager = new CielJavaManager();
 
     public List<Etoile> getParentEtoiles(){   return etoilesOnSky;}
     public List<Align> getAligns(){   return alignsOnSky;}
@@ -46,6 +47,13 @@ public class Ciel implements Serializable
             }
         }
         return results;
+    }
+
+    public void readJavaFiles(List<File> javaFiles)
+    {   List<Etoile> resultedEtoiles = javaManager.readJavaFiles(javaFiles);
+        for(Etoile e : resultedEtoiles)
+        {   if(!e.isSubStar()) etoilesOnSky.add(e);
+        }
     }
 
     public void printMap()

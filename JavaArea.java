@@ -1,5 +1,5 @@
 import java.time.Duration;
-import java.util.Collection;
+import java.util.*;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.shape.*;
 import javafx.event.*;
 import javafx.geometry.*;
-import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
@@ -26,6 +25,11 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
+
+import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.utils.*;
+import com.github.javaparser.*;
 
 public class JavaArea
 {   private Region javaArea;
@@ -69,9 +73,32 @@ public class JavaArea
         // run: `cleanupWhenNoLongerNeedIt.unsubscribe();`
 
         codeArea.replaceText(0, 0, sampleCode);
-
+        
         javaArea = new StackPane(new VirtualizedScrollPane<>(codeArea));
+
+        
+        CompilationUnit compilationUnit = StaticJavaParser.parse(codeArea.getText());
+        List<ClassOrInterfaceDeclaration> classes = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+        for(ClassOrInterfaceDeclaration c : classes)
+        {   System.out.println(c.getExtendedTypes()); 
+            // for(MethodDeclaration m: c.findAll(MethodDeclaration.class))
+            // {   System.out.println(m.getModifiers());
+            // }
+        }
+
+        // List<BodyDeclaration> compilationUnit.findAll(BodyDeclaration.class).size();
+        // System.out.println(a);
+        // printChildren(compilationUnit);
     }
+
+    private void printChildren(Node n)
+    {   
+        // for(Node subNode : n.getChildNodes())
+        // {   System.out.println("---------------------------Node i:\n"+subNode);
+        //     printChildren(subNode);
+        // }
+    }
+
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
@@ -132,7 +159,7 @@ public class JavaArea
        "",
        "import java.util.*;",
        "",
-       "public class Foo extends Bar implements Baz {",
+       "public class Foo extends Bar implements Java.Baz {",
        "",
        "    /*",
        "     * multi-line comment",

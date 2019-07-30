@@ -23,9 +23,10 @@ public class GlobalSatellite
 
     //globals
     private Stage mainStage;
+    private Ciel cielModel; 
 
     private GlobalSatellite()
-    {  ;
+    {   cielModel = new Ciel();
     }
 
     public static GlobalSatellite getSatellite()
@@ -35,5 +36,6 @@ public class GlobalSatellite
 
     public Stage getStage() {  return mainStage;}
     public void setStage(Stage mainStage) {  this.mainStage = mainStage;}
-
+    public void setCielModel(Ciel cielModel){ this.cielModel = cielModel;}
+    public Ciel getCielModel(){   return cielModel;}
 }

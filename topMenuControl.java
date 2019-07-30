@@ -27,6 +27,7 @@ public class topMenuControl
     public Node menuPanel;
     public MenuItem save;
     public MenuItem read;
+    public MenuItem readJava;
     public MenuItem remove;
     
     public Slider slider;
@@ -51,14 +52,18 @@ public class topMenuControl
     {   save.setOnAction(e->saving());
         read.setOnAction(e->reading());
         remove.setOnAction(e->removing());
+        readJava.setOnAction(e->readingjava());
+        sliderSettings();
+    }
 
-        slider.setMax(0.8f);
+    private void sliderSettings()
+    {   slider.setMax(0.8f);
         slider.setMin(0.15f);
         slider.setValue(0.55f);
     }
 
     private void saving()
-    {   Ciel cielModel = cielControl.getCielModel();
+    {   Ciel cielModel = globals.getCielModel();
         String path = askSaveFileName();
         if(path==null) return;
         FileSystem fileHandler = new FileSystem("");
@@ -67,6 +72,7 @@ public class topMenuControl
     private String askSaveFileName()
     {   FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File("./data/"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Ciel File", "*.data"));
         File selectedFile = fileChooser.showSaveDialog(globals.getStage());
         if(selectedFile==null) return null;
         return selectedFile.getPath();
@@ -82,10 +88,28 @@ public class topMenuControl
     private String askReadFileName()
     {   FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File("./data/"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Ciel File", "*.data"));
         File selectedFile = fileChooser.showOpenDialog(globals.getStage());
         if(selectedFile==null) return null;
         return selectedFile.getPath();
     }
+
+    private void readingjava()
+    {   List<File> javaFiles = askReadJavaFiles();
+        Ciel cielModel = new Ciel();
+        cielModel.readJavaFiles(javaFiles);
+        cielControl.loadFromCielModel(cielModel);
+    }
+
+    private List<File> askReadJavaFiles()
+    {   FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("./"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("java File", "*.java"));
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(globals.getStage());
+        if(selectedFiles==null) return null;
+        return selectedFiles;
+    }
+
 
 
     private void removing()

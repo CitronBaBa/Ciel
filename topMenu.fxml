@@ -12,6 +12,7 @@
             <items>
               <MenuItem fx:id="save" mnemonicParsing="false" text="Save" />
                   <MenuItem fx:id="read" mnemonicParsing="false" text="Read" />
+                  <MenuItem fx:id="readJava" mnemonicParsing="false" text="ReadJava" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

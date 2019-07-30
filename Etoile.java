@@ -13,6 +13,12 @@ public class Etoile implements Serializable
     private List<Etoile> children = new ArrayList<>();
     private Etoile parentStar;
     private boolean isSubStar = false;
+
+    // java
+    private String className;
+    public void setClassName(String className) { this.className = className; }
+    public String getClassName() {   return className;}
+
     public boolean isSubStar() {   return isSubStar;}
     public void becomeSubStar(Etoile parentStar) 
     {   isSubStar = true;
@@ -57,6 +63,11 @@ public class Etoile implements Serializable
             return true;
         }
         return false;
+    }
+    
+    public String toString()
+    {   if(className!=null) return "ClassName:"+className;
+        return "EName:"+name;
     }
         // Etoile originalStar = monEtoile; 
         // while(originalStar.isSubStar()) originalStar = originalStar.getParent();      

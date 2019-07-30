@@ -19,12 +19,13 @@ import javafx.scene.effect.*;
 
 public class StylePanel
 {   private CielControl cielControl;
+    private TabPane bottomTabs = new TabPane();
     private HBox bottomBox = new HBox();
     private GridPane colorGird = new GridPane();
     private int x = 0; private int y = 0;
 
     public Node getPanel()
-    {   return bottomBox;
+    {   return bottomTabs;
     }
 
     public StylePanel(CielControl cielControl)
@@ -35,9 +36,11 @@ public class StylePanel
     private void init()
     {   ColorPicker colorPicker = new ColorPicker();
         colorPicker.setOnAction(e->chooseColor(colorPicker.getValue()));
-
         createColorGird();
         bottomBox.getChildren().addAll(colorGird,colorPicker);
+        Tab colorTab = new Tab("Color",bottomBox);
+        Tab interfaceTab = new Tab("interfaces");
+        bottomTabs.getTabs().addAll(colorTab,interfaceTab);
     }
 
     private void createColorGird()
