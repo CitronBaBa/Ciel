@@ -10,3 +10,8 @@
     -fx-stroke-line-cap: round;
     -fx-stroke-line-join: round;
 }
+
+#interfaceLabel{
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}

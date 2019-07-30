@@ -8,6 +8,7 @@ public class Ciel implements Serializable
     private transient DoubleProperty scaleCoeeficent = new SimpleDoubleProperty(1.0f);
     private CielJavaManager javaManager = new CielJavaManager();
 
+    public CielJavaManager getJavaManager() {   return javaManager;}
     public List<Etoile> getParentEtoiles(){   return etoilesOnSky;}
     public List<Align> getAligns(){   return alignsOnSky;}
 

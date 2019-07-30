@@ -83,7 +83,7 @@ public class topMenuControl
         if(path==null) return;
         FileSystem fileHandler = new FileSystem("");
         Ciel cielModel = (Ciel) fileHandler.readObjectFrom(path);
-        cielControl.loadFromCielModel(cielModel);
+        updateModel(cielModel);
     }
     private String askReadFileName()
     {   FileChooser fileChooser = new FileChooser();
@@ -96,9 +96,10 @@ public class topMenuControl
 
     private void readingjava()
     {   List<File> javaFiles = askReadJavaFiles();
+        if(javaFiles==null) return;
         Ciel cielModel = new Ciel();
         cielModel.readJavaFiles(javaFiles);
-        cielControl.loadFromCielModel(cielModel);
+        updateModel(cielModel);
     }
 
     private List<File> askReadJavaFiles()
@@ -110,6 +111,11 @@ public class topMenuControl
         return selectedFiles;
     }
 
+    private void updateModel(Ciel cielModel)
+    {   globals.setCielModel(cielModel);
+        HoustonCenter.propagateEvent(CielEvent.LoadNewModel);
+        cielControl.loadFromCielModel(cielModel);
+    }
 
 
     private void removing()

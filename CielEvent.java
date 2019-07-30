@@ -1,1 +1,1 @@
-enum CielEvent{ChangeFocus,};
+enum CielEvent{ChangeFocus,LoadNewModel};

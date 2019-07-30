@@ -14,6 +14,14 @@ public class CielJavaManager implements Serializable
     private Map<String,double[]> interfaces = new HashMap<>(); 
     private Map<String,List<Etoile>> implementations = new HashMap<>();
 
+
+    public Map<String,double[]> getInterfaces()
+    {   return interfaces;
+    }
+    public Map<String,List<Etoile>> getImplementations()
+    {   return implementations;
+    }
+
     public List<Etoile> readJavaFiles(List<File> targetFiles)
     {   List<ClassOrInterfaceDeclaration> javaClassDeclares = new ArrayList<>();
         List<Etoile> recordedEtoiles = new ArrayList<>();
@@ -57,7 +65,7 @@ public class CielJavaManager implements Serializable
         for(ClassOrInterfaceType i: implementeds)
         {   String interfaceName = i.getName().toString();
             if(!interfaces.containsKey(interfaceName))
-            {   double[] color = {255,0,0,1};
+            {   double[] color = {Math.random(),Math.random(),Math.random(),1.0f};
                 interfaces.put(interfaceName,color);
                 implementations.put(interfaceName,new ArrayList<Etoile>());
             }

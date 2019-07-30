@@ -35,10 +35,10 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     {   return new Point2D(name.getWidth()/2,name.getHeight()/2);
     }
     protected Node getMainShape() { return name;}
-    protected void setShapeColor(Paint color)
+    public void setShapeColor(Paint color)
     {   name.setTextFill(color);
     }
-    protected Color getShapeColor()
+    public Color getShapeColor()
     {   return (Color)name.getTextFill();
     }
 

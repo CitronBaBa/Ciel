@@ -35,6 +35,10 @@ public class CielControl
 // used to quickly find controller
     private Map<Etoile,EtoileControl> etoileControls = new HashMap<>();
     private Map<Align,AlignControl> alignControls = new HashMap<>();
+    public Map<Etoile,EtoileControl> getEtoileControls()
+    {   return etoileControls;
+    }
+
 
     private VBox backgroundPopUp;
     private VBox starPopUp;
@@ -55,9 +59,7 @@ public class CielControl
     }
 
     public void loadFromCielModel(Ciel cielModel)
-    {   globals.setCielModel(cielModel);
-
-        // clear up
+    {   // clear up
         removeEverything();
 
         // loading

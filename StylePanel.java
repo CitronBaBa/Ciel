@@ -17,19 +17,32 @@ import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.effect.*;
 
-public class StylePanel
+public class StylePanel implements CielEventSubscriber
 {   private CielControl cielControl;
+    private GlobalSatellite globals;
     private TabPane bottomTabs = new TabPane();
+
     private HBox bottomBox = new HBox();
     private GridPane colorGird = new GridPane();
     private int x = 0; private int y = 0;
+
+    private GridPane interfaceGrid = new GridPane();
+    private int x1 = 0; private int y1 = 0;
 
     public Node getPanel()
     {   return bottomTabs;
     }
 
+    public void reactOnEvent(CielEvent event)
+    {   if(event==CielEvent.LoadNewModel)
+        {   updateInterfacePanel();
+        }
+    }
+
     public StylePanel(CielControl cielControl)
     {   this.cielControl = cielControl;
+        this.globals = GlobalSatellite.getSatellite();
+        HoustonCenter.subscribe(this);
         init();
     }
 
@@ -39,8 +52,34 @@ public class StylePanel
         createColorGird();
         bottomBox.getChildren().addAll(colorGird,colorPicker);
         Tab colorTab = new Tab("Color",bottomBox);
-        Tab interfaceTab = new Tab("interfaces");
+        Tab interfaceTab = new Tab("interfaces",interfaceGrid);
         bottomTabs.getTabs().addAll(colorTab,interfaceTab);
+    }
+
+    private void updateInterfacePanel()
+    {   interfaceGrid.getChildren().clear();
+        //Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
+        Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
+        for(Map.Entry<String,double[]> pair: interfaces.entrySet())
+        {   String interfaceName = pair.getKey();
+            double[] colorFigures = pair.getValue();
+            // Color = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
+            Label label = new Label(interfaceName);
+            label.setId("interfaceLabel");
+            label.setStyle("-fx-background-color:rgb("+colorFigures[0]*255+","+colorFigures[1]*255+
+                ","+colorFigures[2]*255+","+colorFigures[3]+")");
+            setInterfaceBoxBehavior(label);
+            placeOneInterfaceBox(label);
+        }
+    }
+
+    private void placeOneInterfaceBox(Node node)
+    {   GridPane.setConstraints(node,x++,y);
+        if(x>9)
+        {   x=0;
+        	y++;
+        }
+        interfaceGrid.getChildren().add(node);
     }
 
     private void createColorGird()
@@ -63,6 +102,41 @@ public class StylePanel
         colorGird.getChildren().add(node);
     }
 
+    private void setInterfaceBoxBehavior(Label box)
+    {   box.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event)
+        {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
+            {   highlightRelatedStars(box.getText());
+            }
+        }
+        });
+        setMovingEffect(box);
+    }
+
+    private void highlightRelatedStars(String interfaceName)
+    {   Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
+        Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
+
+        List<Etoile> targets = implementations.get(interfaceName);
+        double[] colorFigures = interfaces.get(interfaceName);
+        Color targetColor = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
+        
+
+        Map<EtoileControl,Color> oldColors = new HashMap<>();
+        Map<EtoileControl,Color> newColors = new HashMap<>();
+
+        for(Etoile e : targets)
+        {   EtoileControl eController = cielControl.getEtoileControls().get(e);
+            oldColors.put(eController,eController.getShapeColor());
+            newColors.put(eController,targetColor);
+            eController.setShapeColor(targetColor);
+        }
+
+        HoustonCenter.recordAction(new MultiColorAction(oldColors,newColors));
+    }
+
+
     private void setBoxBehavior(Shape box)
     {   box.setOnMouseClicked(new EventHandler<MouseEvent>() {
         @Override
@@ -73,7 +147,11 @@ public class StylePanel
         }
         });
 
-        box.setOnMouseEntered(new EventHandler<MouseEvent>() {
+        setMovingEffect(box);
+    }
+    
+    private void setMovingEffect(Node box)
+    {   box.setOnMouseEntered(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
         {   if(event.getEventType() == MouseEvent.MOUSE_ENTERED)
@@ -90,7 +168,6 @@ public class StylePanel
             }
         }
         });
-
     }
 
     private void chooseColor(Color color)
@@ -117,6 +194,26 @@ public class StylePanel
         }
         public void redo()
         {   target.setColor(newColor);
+        }
+    }
+
+    public static class MultiColorAction implements CielAction
+    {   Map<EtoileControl,Color> oldColors;
+        Map<EtoileControl,Color> newColors;
+
+        public MultiColorAction(Map<EtoileControl,Color> oldColors, Map<EtoileControl,Color> newColors)
+        {   this.newColors = newColors;
+            this.oldColors = oldColors;
+        }
+        public void undo()
+        {   for(Map.Entry<EtoileControl,Color> pair: oldColors.entrySet())
+            {   pair.getKey().setShapeColor(pair.getValue());
+            }
+        }
+        public void redo()
+        {   for(Map.Entry<EtoileControl,Color> pair: newColors.entrySet())
+            {   pair.getKey().setShapeColor(pair.getValue());
+            }
         }
     }
 

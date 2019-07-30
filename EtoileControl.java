@@ -351,10 +351,10 @@ public class EtoileControl implements Initializable
         if(colorFigures == null) return getShapeColor();
         return new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
     }
-    protected void setShapeColor(Paint color)
+    public void setShapeColor(Paint color)
     {   etoileShape.setFill(color);
     }
-    protected Color getShapeColor()
+    public Color getShapeColor()
     {   return (Color)etoileShape.getFill();
     }
 
