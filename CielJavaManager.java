@@ -11,7 +11,7 @@ import javafx.scene.paint.*;
 
 public class CielJavaManager implements Serializable
 {   private Map<String,Etoile> classes = new HashMap<>();
-    private Map<String,double[]> interfaces = new HashMap<>(); 
+    private Map<String,double[]> interfaces = new HashMap<>();
     private Map<String,List<Etoile>> implementations = new HashMap<>();
 
 
@@ -29,9 +29,9 @@ public class CielJavaManager implements Serializable
         {   readJavaFile(file,javaClassDeclares,recordedEtoiles);
         }
         for(ClassOrInterfaceDeclaration c : javaClassDeclares)
-        {   recordInheritance(c);    
+        {   recordInheritance(c);
+            recordInnerClass(c);
         }
-        System.out.println(implementations);
         return recordedEtoiles;
     }
 
@@ -70,8 +70,8 @@ public class CielJavaManager implements Serializable
                 implementations.put(interfaceName,new ArrayList<Etoile>());
             }
             implementations.get(interfaceName).add(newEtoile);
-        }  
-        
+        }
+
         return newEtoile;
     }
 
@@ -79,17 +79,38 @@ public class CielJavaManager implements Serializable
     {   NodeList<ClassOrInterfaceType> extended = c.getExtendedTypes();
         if(extended.size()!=0)
         {   String parentClassName = extended.get(0).getName().toString();
-            String childClassName = c.getName().toString(); 
+            String childClassName = c.getName().toString();
             Etoile parentEtoile = classes.get(parentClassName);
             Etoile childEtoile = classes.get(childClassName);
 
             //his parent is not here
             if(parentEtoile==null) return;
-            
+
             childEtoile.becomeSubStar(parentEtoile);
             parentEtoile.addChild(childEtoile);
         }
-        
+    }
+
+    private void recordInnerClass(ClassOrInterfaceDeclaration c)
+    {    // check parent is a class
+         if(c.getParentNode().get().getClass()!=ClassOrInterfaceDeclaration.class)
+         {   return ;
+         }
+
+         //whther itself is a interface 
+         if(c.isInterface()) return;
+
+         // already a child because of inheritance
+         if(classes.get(c.getName().toString()).isSubStar())
+         {   return ;
+         }
+
+
+         ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration)c.getParentNode().get();
+         Etoile parentEtoile = classes.get(parent.getName().toString());
+         Etoile childEtoile = classes.get(c.getName().toString());
+         childEtoile.becomeSubStar(parentEtoile);
+         parentEtoile.addChild(childEtoile);
     }
 
 

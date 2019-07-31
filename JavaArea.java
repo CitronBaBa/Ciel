@@ -28,6 +28,7 @@ import org.reactfx.Subscription;
 
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.*;
 import com.github.javaparser.*;
 
@@ -78,9 +79,9 @@ public class JavaArea
 
         
         CompilationUnit compilationUnit = StaticJavaParser.parse(codeArea.getText());
-        List<ClassOrInterfaceDeclaration> classes = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
-        for(ClassOrInterfaceDeclaration c : classes)
-        {   System.out.println(c.getExtendedTypes()); 
+        List<ClassOrInterfaceType> classes = compilationUnit.findAll(ClassOrInterfaceType.class);
+        for(ClassOrInterfaceType c : classes)
+        {   System.out.println(c); 
             // for(MethodDeclaration m: c.findAll(MethodDeclaration.class))
             // {   System.out.println(m.getModifiers());
             // }
@@ -159,8 +160,8 @@ public class JavaArea
        "",
        "import java.util.*;",
        "",
-       "public class Foo extends Bar implements Java.Baz {",
-       "",
+       "public class Foo extends Bar implements Baz {",
+       "    ",
        "    /*",
        "     * multi-line comment",
        "     */",
@@ -172,6 +173,7 @@ public class JavaArea
        "            else",
        "                System.err.println(\"Warning: empty string as argument\");",
        "        }",
+       "        Align.print(arg);",
        "    }",
        "",
        "}"

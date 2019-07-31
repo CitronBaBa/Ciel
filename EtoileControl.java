@@ -21,12 +21,12 @@ import javafx.beans.binding.*;
 import javafx.beans.value.*;
 
 // "etoileview - primaryview - shape" hierarchy and childArea are essential
-// however their relations can be aribtrary 
+// however their relations can be aribtrary
 // with minor or zero modification it will still work
 
-// when inherited, all protected methods need to be override or checked 
+// when inherited, all protected methods need to be override or checked
 public class EtoileControl implements Initializable
-{   
+{
     // total view
     public Region etoileView;
     private Node childDraw;
@@ -37,7 +37,6 @@ public class EtoileControl implements Initializable
     public VBox childArea;
     public Label name;
     public TextField nameField;
-    public Pane backgroundPane;
 
     private Pane cielArea;
     protected Etoile monEtoile;
@@ -56,6 +55,7 @@ public class EtoileControl implements Initializable
         initalLocate();
         autoUpdatePostion();
         initialStyling();
+        dynamicSizing();
     }
 
     public EtoileControl(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
@@ -68,17 +68,25 @@ public class EtoileControl implements Initializable
         loadFromFxml();
         //loadChildren();
     }
+
     private void loadFromFxml()
     {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(getFxmlName()));
         fxmlLoader.setController(this);
         try {   fxmlLoader.load(); }
         catch(Exception e) {  e.printStackTrace();}
     }
-    protected String getFxmlName() 
+
+    protected String getFxmlName()
     {   if(monEtoile.isSubStar()) return "EtoileSub.fxml";
         else return "EtoileMain.fxml";
     }
-    
+
+    protected void dynamicSizing()
+    {   etoileShape.radiusXProperty().bind(name.widthProperty().divide(1.2f));
+        etoileShape.radiusYProperty().bind(name.heightProperty().divide(0.9f));
+    }
+
+
     /*  ideally child loading should be in this class
         however, because mousesetting partly sits in the cielControl
         it is currently too complicated to do that (child star doesn't gets full mouse setup)
@@ -86,13 +94,13 @@ public class EtoileControl implements Initializable
 
     // private void loadChildren()
     // {   for(Etoile eSub : monEtoile.getChildren())
-    //     {   EtoileControl_EmptyShap 
+    //     {   EtoileControl_EmptyShap
     //     }
     // }
 
 
     public Etoile getEtoile() {   return monEtoile;}
-    public Node getView(){   return this.etoileView;}
+    public Region getView(){   return this.etoileView;}
     public Node getPrimaryView() {  return primaryView;}
     public VBox getChildArea() {  return childArea;}
     public void setChildDraw(Node childDraw){   this.childDraw = childDraw; }
@@ -179,10 +187,10 @@ public class EtoileControl implements Initializable
     {   if(monEtoile.isSubStar()) return;
 
 
-        // loading from file 
-        // this case can be eliminated once child is loaded recursively from inside 
+        // loading from file
+        // this case can be eliminated once child is loaded recursively from inside
         // (instead of sepaately in cielControl)
-        if(monEtoile.getViewCoor()!=null) 
+        if(monEtoile.getViewCoor()!=null)
         {   locateDirectly(monEtoile.getViewCoor());
             return;
         }
@@ -266,7 +274,7 @@ public class EtoileControl implements Initializable
         QuadCurveTo quadCurveTo = new QuadCurveTo();
         quadCurveTo.xProperty().bind(childStar.bottomLeftX());
         quadCurveTo.yProperty().bind(childStar.bottomLeftY());
-        
+
         quadCurveTo.controlXProperty().bind(
                 childStar.getEtoile().getCoordination().getXProperty()
                 .add(coor.getXProperty()).divide(2.0f)  );
@@ -423,7 +431,7 @@ public class EtoileControl implements Initializable
     }
 
     private void innerMouseSetUp()
-    {   nameField.focusedProperty().addListener((obs, oldVal, newVal) -> 
+    {   nameField.focusedProperty().addListener((obs, oldVal, newVal) ->
         {   if(newVal == false) finishEditting();
         });
         nameField.setOnAction(e->

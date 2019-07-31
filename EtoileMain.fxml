@@ -6,34 +6,30 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane fx:id="etoileView" cache="true" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<HBox fx:id="etoileView" cache="true" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane fx:id="backgroundPane" cache="true" />
-      <HBox cache="true" spacing="10.0">
+      <VBox alignment="CENTER">
          <children>
-            <VBox alignment="CENTER">
+            <Region />
+            <StackPane fx:id="primaryView" cache="true" prefHeight="96.0" prefWidth="109.0">
                <children>
-                  <Region />
-                  <StackPane fx:id="primaryView" cache="true" prefHeight="96.0" prefWidth="109.0">
-                     <children>
-                        <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="#ffaaa5" radiusX="50.0" radiusY="40.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                        <TextField id="nameField" fx:id="nameField" alignment="CENTER" text="Label">
-                           <font>
-                              <Font size="21.0" />
-                           </font>
-                        </TextField>
-                        <Label fx:id="name" text="Label" textFill="WHITE">
-                           <font>
-                              <Font size="21.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </StackPane>
-                  <Region />
+                  <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="#ffaaa5" radiusX="50.0" radiusY="40.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" text="Label">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </TextField>
+                  <Label fx:id="name" text="Label" textFill="WHITE">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </Label>
                </children>
-            </VBox>
-            <VBox fx:id="childArea" cache="true" spacing="10.0" />
+            </StackPane>
+            <Region />
          </children>
-      </HBox>
+      </VBox>
+      <VBox fx:id="childArea" cache="true" spacing="10.0" />
    </children>
-</StackPane>
+</HBox>

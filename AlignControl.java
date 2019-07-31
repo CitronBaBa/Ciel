@@ -22,6 +22,7 @@ public class AlignControl
     private Map<Align, AlignControl> alignControls;
     private Pane cielArea;
     private Ciel cielModel;
+
     public AlignControl(Align align, Map<Align,AlignControl> alignControls, Pane cielArea, Ciel cielModel)
     {   this.align = align;
         this.alignControls = alignControls;

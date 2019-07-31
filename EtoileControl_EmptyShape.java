@@ -29,6 +29,10 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
         primaryView.getChildren().remove(etoileShape);
     }
 
+    protected void dynamicSizing()
+    {   ;
+    }
+
 
     @Override
     protected Point2D giveCenterPoint() //local coordinate system

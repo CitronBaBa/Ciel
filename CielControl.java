@@ -30,6 +30,8 @@ public class CielControl
 
     private GlobalSatellite globals;
     private Ciel cielModel;
+    private CielRobot robot;
+    public CielRobot getRobot() {   return robot;}
 
 // mapping between model object and graph object
 // used to quickly find controller
@@ -55,6 +57,7 @@ public class CielControl
         this.cielArea = cielArea;
         this.cielBox = cielBox;
         this.cielScrolPane = cielScrolPane;
+        this.robot = new CielRobot(etoileControls,cielScrolPane);
         initialization();
     }
 
@@ -71,6 +74,8 @@ public class CielControl
         for(Align a : cielModel.getAligns())
         {   drawOneAlign(a);
         }
+
+        cielScrolPane.layout();
     }
 
 // ideally this should be moved to etoileControl
@@ -195,6 +200,7 @@ public class CielControl
     {   Etoile newEtoile = new Etoile("empty");
         newEtoile.updateCoordination(newCoor);
         EtoileControl controller = drawOneStar(newEtoile);
+        robot.arrangeAllStars();
     }
 
     private void drawOneAlign(Align align)
@@ -210,7 +216,7 @@ public class CielControl
 
     private EtoileControl drawOneStar(Etoile star)
     {   EtoileControl controller;
-        if(star.isSubStar()) 
+        if(star.isSubStar())
             controller = new EtoileControl_EmptyShape(star,etoileControls,alignControls,cielArea,cielModel);
         else controller = new EtoileControl(star,etoileControls,alignControls,cielArea,cielModel);
         starSetUp(controller);
@@ -260,20 +266,20 @@ public class CielControl
                 event.consume();
             }
         });
-        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_ENTERED, new EventHandler<MouseDragEvent>() 
+        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_ENTERED, new EventHandler<MouseDragEvent>()
         // {   public void handle(MouseDragEvent event)
         //     {   oldCoor.setX(controller.getEtoile().getCoordination().getX());
         //         oldCoor.setY(controller.getEtoile().getCoordination().getY());
-        //         event.consume(); 
+        //         event.consume();
         //     }
         // });
-        // 
-        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED, new EventHandler<MouseDragEvent>() 
+        //
+        // controller.getPrimaryView().addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED, new EventHandler<MouseDragEvent>()
         // {   public void handle(MouseDragEvent event)
         //     {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
         //         Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
         //         HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,controller));
-        //         event.consume();   
+        //         event.consume();
         //     }
         // });
 
@@ -483,7 +489,7 @@ public class CielControl
         }
     }
 
-   private class AlignAction implements CielAction
+   private static class AlignAction implements CielAction
    {    private AlignControl target;
         private final boolean inverse;
         public AlignAction(AlignControl target, boolean inverse)

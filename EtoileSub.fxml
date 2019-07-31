@@ -7,34 +7,30 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane fx:id="etoileView" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<HBox fx:id="etoileView" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane fx:id="backgroundPane" />
-      <HBox spacing="10.0">
+      <VBox alignment="CENTER">
          <children>
-            <VBox alignment="CENTER">
+            <Region />
+            <StackPane fx:id="primaryView">
                <children>
-                  <Region />
-                  <StackPane fx:id="primaryView">
-                     <children>
-                        <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="44.0" radiusY="20.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                        <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="22.0" prefWidth="68.0" text="Label">
-                           <font>
-                              <Font size="16.0" />
-                           </font>
-                        </TextField>
-                        <Label fx:id="name" text="Label" textFill="#4072e8">
-                           <font>
-                              <Font size="16.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </StackPane>
-                  <Region />
+                  <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="44.0" radiusY="20.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="22.0" prefWidth="68.0" text="Label">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </TextField>
+                  <Label fx:id="name" text="Label" textFill="#4072e8">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
                </children>
-            </VBox>
-            <VBox fx:id="childArea" spacing="10.0" />
+            </StackPane>
+            <Region />
          </children>
-      </HBox>
+      </VBox>
+      <VBox fx:id="childArea" spacing="10.0" />
    </children>
-</StackPane>
+</HBox>

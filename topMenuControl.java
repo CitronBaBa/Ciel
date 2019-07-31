@@ -19,6 +19,7 @@ import javafx.scene.paint.*;
 import javafx.scene.effect.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
+import javafx.application.Platform;
 
 public class topMenuControl
 {   private CielControl cielControl;
@@ -29,7 +30,7 @@ public class topMenuControl
     public MenuItem read;
     public MenuItem readJava;
     public MenuItem remove;
-    
+
     public Slider slider;
 
     public Node getPanel()
@@ -100,6 +101,7 @@ public class topMenuControl
         Ciel cielModel = new Ciel();
         cielModel.readJavaFiles(javaFiles);
         updateModel(cielModel);
+        Platform.runLater(()->{cielControl.getRobot().arrangeAllStars();});
     }
 
     private List<File> askReadJavaFiles()
