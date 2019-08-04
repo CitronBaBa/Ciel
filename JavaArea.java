@@ -1,5 +1,7 @@
 import java.time.Duration;
 import java.util.*;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +32,13 @@ import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.*;
+import com.github.javaparser.resolution.*;
 import com.github.javaparser.*;
+import com.github.javaparser.symbolsolver.*;
+import com.github.javaparser.symbolsolver.javaparser.*;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
+import com.github.javaparser.resolution.types.*;
+import com.github.javaparser.ast.expr.*;
 
 public class JavaArea
 {   private Region javaArea;
@@ -76,30 +84,20 @@ public class JavaArea
         codeArea.replaceText(0, 0, sampleCode);
         
         javaArea = new StackPane(new VirtualizedScrollPane<>(codeArea));
+    }
 
-        
-        CompilationUnit compilationUnit = StaticJavaParser.parse(codeArea.getText());
-        List<ClassOrInterfaceType> classes = compilationUnit.findAll(ClassOrInterfaceType.class);
-        for(ClassOrInterfaceType c : classes)
-        {   System.out.println(c); 
-            // for(MethodDeclaration m: c.findAll(MethodDeclaration.class))
-            // {   System.out.println(m.getModifiers());
-            // }
-        }
+        // CompilationUnit compilationUnit = StaticJavaParser.parse(codeArea.getText());
+        // List<ClassOrInterfaceType> classes = compilationUnit.findAll(ClassOrInterfaceType.class);
+        // for(ClassOrInterfaceType c : classes)
+        // {   System.out.println(c); 
+        //     // for(MethodDeclaration m: c.findAll(MethodDeclaration.class))
+        //     // {   System.out.println(m.getModifiers());
+        //     // }
+        // }
 
         // List<BodyDeclaration> compilationUnit.findAll(BodyDeclaration.class).size();
         // System.out.println(a);
         // printChildren(compilationUnit);
-    }
-
-    private void printChildren(Node n)
-    {   
-        // for(Node subNode : n.getChildNodes())
-        // {   System.out.println("---------------------------Node i:\n"+subNode);
-        //     printChildren(subNode);
-        // }
-    }
-
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);

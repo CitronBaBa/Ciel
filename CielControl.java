@@ -200,7 +200,6 @@ public class CielControl
     {   Etoile newEtoile = new Etoile("empty");
         newEtoile.updateCoordination(newCoor);
         EtoileControl controller = drawOneStar(newEtoile);
-        robot.arrangeAllStars();
     }
 
     private void drawOneAlign(Align align)
@@ -300,16 +299,40 @@ public class CielControl
 
     private void selectStar(EtoileControl targetEtoile)
     {   if(selectedEtoile == targetEtoile) return;
-        if(selectedEtoile != null) selectedEtoile.removeEffect();
+        if(selectedEtoile != null) unSelectStarWithoutPropagte();
+
         selectedEtoile = targetEtoile;
         selectedEtoile.addEffect();
+        showDependency(selectedEtoile);
         HoustonCenter.propagateEvent(CielEvent.ChangeFocus);
     }
-    private void unSelectStar()
+    private void showDependency(EtoileControl targetEtoile)
+    {   String className = targetEtoile.getEtoile().getName();
+        Set<Etoile> dependents = cielModel.getJavaManager().getDependentEtoiles(className);
+        if(dependents == null) return;
+        for(Etoile e : dependents)
+        {   EtoileControl ec = etoileControls.get(e);
+            if(ec!=null) ec.addEffect();
+        }
+    }
+    private void unSelectStarWithoutPropagte()
     {   if(selectedEtoile == null) return;
         selectedEtoile.removeEffect();
+        unShowDependency(selectedEtoile);
         selectedEtoile = null;
+    }
+    private void unSelectStar()
+    {   unSelectStarWithoutPropagte();
         HoustonCenter.propagateEvent(CielEvent.ChangeFocus);
+    }
+    private void unShowDependency(EtoileControl targetEtoile)
+    {   String className = targetEtoile.getEtoile().getName();
+        Set<Etoile> dependents = cielModel.getJavaManager().getDependentEtoiles(className);
+        if(dependents == null) return;
+        for(Etoile e : dependents)
+        {   EtoileControl ec = etoileControls.get(e);
+            if(ec!=null) ec.removeEffect();
+        }
     }
 
     private void popStarPopUp(Coordination coor, EtoileControl etoileController)
@@ -352,6 +375,7 @@ public class CielControl
 
     private void removeOperation(EtoileControl targetEtoile)
     {   targetEtoile.removeYourself();
+        if(selectedEtoile==targetEtoile) unSelectStar();
         HoustonCenter.recordAction(new AddingAction(targetEtoile,true));
         cielArea.getChildren().remove(starPopUp);
     }
