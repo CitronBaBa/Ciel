@@ -1,8 +1,11 @@
 default: UniverseWindow
-jfx = --module-path FX/lib --add-modules ALL-MODULE-PATH
+jfx = --module-path FX2/lib --add-modules ALL-MODULE-PATH
 CielJavaManager:
 	javac $@.java $(jfx)
 	java $(jfx) $@
+CielJavaManagerRun:
+	java $(jfx) CielJavaManager
+
 CielRobot:
 	javac $@.java $(jfx)
 	java $(jfx) $@

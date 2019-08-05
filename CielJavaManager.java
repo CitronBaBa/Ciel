@@ -19,23 +19,35 @@ import javafx.scene.paint.*;
 
 public class CielJavaManager implements Serializable
 {   private Map<String,Etoile> classes = new HashMap<>();
+    private Set<String> classInterfaceEnums = new HashSet<>();
     private Map<String,Set<String>> classDependents = new HashMap<>();
 
     private Map<String,double[]> interfaces = new HashMap<>();
     private Map<String,List<Etoile>> implementations = new HashMap<>();
 
     private final File parsePath = new File("./");
-    private final File jarPath = new File("./FX/lib");  
+    private final File jarPath = new File("./FX/lib");
 
+
+// caching
+    Map<String,Set<String>> cachedMethodCalls = new HashMap<>();
+
+// testing and adjusting
     private boolean debugging = false;
+    private long timeForVarialbes = 0;
+    private long timeForDeclares = 0;
+    private long timeForCalls = 0;
+    private int totalDependentFound = 0;
+
+
 
     CielJavaManager()
-    { ;
+    {  ;
     }
     CielJavaManager(boolean debugging)
     {   this.debugging = debugging;
     }
-    
+
 
     public Map<String,double[]> getInterfaces()
     {   return interfaces;
@@ -47,11 +59,12 @@ public class CielJavaManager implements Serializable
     {   Set<Etoile> dependentEtoiles = new HashSet<>();
         Set<String> dependentClasses = classDependents.get(className);
 
-        //no such className 
+        //no such className
         if(dependentClasses == null) return null;
 
         for(String dependentName : dependentClasses)
-        {   dependentEtoiles.add(classes.get(dependentName));
+        {   if(classes.get(dependentName)!=null)
+            dependentEtoiles.add(classes.get(dependentName));
         }
         return dependentEtoiles;
     }
@@ -59,20 +72,43 @@ public class CielJavaManager implements Serializable
     public List<Etoile> readJavaFiles(List<File> targetFiles)
     {   List<ClassOrInterfaceDeclaration> javaClassDeclares = new ArrayList<>();
         List<Etoile> recordedEtoiles = new ArrayList<>();
+
+        relieveCaching();
+        setUpSymbolSolver();
         for(File file: targetFiles)
         {   readJavaFile(file,javaClassDeclares,recordedEtoiles);
         }
         for(ClassOrInterfaceDeclaration c : javaClassDeclares)
         {   recordInheritance(c);
             recordInnerClass(c);
+            recordClassDependents(c);
         }
-
-        //optianal operation
-        for(File file: targetFiles)
-        {   recordDependency(file);
-        }
-
+        System.out.println("time for variables:"+timeForVarialbes);
+        System.out.println("time for declares:"+timeForDeclares);
+        System.out.println("time for calls:"+timeForCalls);
+        System.out.println("time for test:"+timeForTest);
+        System.out.println("total Dependents Found:"+totalDependentFound);
+        System.out.print("\n");
+        relieveCaching();
         return recordedEtoiles;
+    }
+
+    private void relieveCaching()
+    {   cachedMethodCalls.clear();
+    }
+
+    private Set<String> testExpression(ClassOrInterfaceDeclaration c)
+    {   Set<String> dependents = new HashSet<>();
+        for(Expression e : c.findAll(Expression.class))
+        {    try
+             {   //System.out.println(e.calculateResolvedType().describe());
+                 dependents.addAll(getDependentNames(e.calculateResolvedType()));
+             }
+             catch(Exception ex) {
+            //    System.out.println(ex);
+             }
+        }
+        return dependents;
     }
 
 
@@ -86,14 +122,20 @@ public class CielJavaManager implements Serializable
         for(ClassOrInterfaceDeclaration c : classesFromCode)
         {   Etoile newEtoile = recordEtoileFromJava(c);
             if(newEtoile!=null) recordedEtoiles.add(newEtoile);
+
+            classInterfaceEnums.add(c.getName().toString());
         }
+
+        for(EnumDeclaration e: compilationUnit.findAll(EnumDeclaration.class))
+        {   classInterfaceEnums.add(e.getName().toString());
+        }
+
         javaClassDeclares.addAll(classesFromCode);
     }
 
     private Etoile recordEtoileFromJava(ClassOrInterfaceDeclaration c)
-    {   if(c.isInterface()) return null;
-        String className = c.getName().toString();
-
+    {   String className = c.getName().toString();
+        if(c.isInterface()) return null;
         // two identical classes situation
         if(classes.containsKey(className)) return null;
 
@@ -137,7 +179,7 @@ public class CielJavaManager implements Serializable
          {   return ;
          }
 
-         //whther itself is a interface 
+         //whther itself is a interface
          if(c.isInterface()) return;
 
          // already a child because of inheritance
@@ -153,8 +195,7 @@ public class CielJavaManager implements Serializable
          parentEtoile.addChild(childEtoile);
     }
 
-// this should happens after recording classes
-    private void recordDependency(File targetFile)
+    private void setUpSymbolSolver()
     {   JavaParserTypeSolver psolver = new JavaParserTypeSolver(parsePath.getAbsolutePath());
         ReflectionTypeSolver rsolver = new ReflectionTypeSolver();
 
@@ -164,19 +205,23 @@ public class CielJavaManager implements Serializable
 
         for(File jar : jarPath.listFiles())
         {   if(!jar.getPath().endsWith(".jar")) continue;
-            try 
-            {  JarTypeSolver jarSolver = new JarTypeSolver(jar.getPath()); 
+            try
+            {   JarTypeSolver jarSolver = new JarTypeSolver(jar.getPath());
                 combinedSolver.add(jarSolver);
             }
-            catch(Exception e) 
+            catch(Exception e)
             {   System.out.println(e);
-                e.printStackTrace(); 
+                e.printStackTrace();
             }
         }
 
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
-        CompilationUnit cu;
+    }
+
+// this should happens after recording classes
+    private void recordDependencyFromFile(File targetFile)
+    {   CompilationUnit cu;
         try { cu = StaticJavaParser.parse(targetFile); }
         catch(Exception e) {  e.printStackTrace(); return;}
 
@@ -185,21 +230,62 @@ public class CielJavaManager implements Serializable
         recordClassDependents(c);
     }
 
+    private long timeForTest = 0;
     private void recordClassDependents(ClassOrInterfaceDeclaration c)
     {   Set<String> finalDependents = new HashSet<>();
-        // getFieldsDependents(c);
+
+                long startTime = System.currentTimeMillis();
+        // finalDependents.addAll(testExpression(c));
+        //         timeForTest += (System.currentTimeMillis()-startTime);
+
+        startTime = System.currentTimeMillis();
         Set<String> set1 = getVariablesDependents(c);
-        Set<String> set2 = getMethodDeclarationDependents(c);
+        timeForVarialbes += (System.currentTimeMillis()-startTime);
+        startTime = System.currentTimeMillis();
+        Set<String> set2 = getSimpleMethodDeclarationDependents(c);
+        timeForDeclares += (System.currentTimeMillis()-startTime);
+        startTime = System.currentTimeMillis();
         Set<String> set3 =getMethodCallDependents(c);
+        timeForCalls += (System.currentTimeMillis()-startTime);
+
+        startTime = System.currentTimeMillis();
+        Set<String> set4 = getObjectCreatorDependents(c);
+        timeForVarialbes += (System.currentTimeMillis()-startTime);
+
         finalDependents.addAll(set1);
         finalDependents.addAll(set2);
         finalDependents.addAll(set3);
-        
+                finalDependents.addAll(set4);
+
         String className = c.getName().toString();
         // a hack to remove itself, could be done in functions
         finalDependents.remove(className);
+        totalDependentFound += finalDependents.size();
         classDependents.put(className,finalDependents);
         System.out.println(className+":  "+finalDependents);
+    }
+
+    private Set<String> getObjectCreatorDependents(Node anyNode)
+    {   Set<String> dependents = new HashSet<>();
+
+        List<ObjectCreationExpr> objectCreations = anyNode.findAll(ObjectCreationExpr.class);
+        for(ObjectCreationExpr oc : objectCreations)
+        {   try
+            {    dependents.addAll(getDependentNames(oc.resolve()));
+                 if(debugging)
+                 {   System.out.println("objectCreator");
+                     System.out.println(oc + "  solved\n\n");
+                 }
+            }
+            catch( Exception e)
+            {    if(debugging)
+                 {   System.out.println(oc + "  unsolved");
+                     e.printStackTrace();
+                     System.out.println("\n\n");
+                 }
+            }
+        }
+        return dependents;
     }
 
     private Set<String> getFieldsDependents(Node anyNode)
@@ -212,15 +298,15 @@ public class CielJavaManager implements Serializable
             {    ResolvedType rtype = vd.getType().resolve();
                  String name = rtype.describe();
                  dependents.addAll(getDependentNames(rtype));
-                    
-                 if(debugging) 
+
+                 if(debugging)
                  {   System.out.println("Field type: " + name);
                      System.out.println(rtype.asReferenceType().typeParametersValues());
                      System.out.println(f + "  solved\n\n");
                  }
             }
             catch( Exception e)
-            {    if(debugging) 
+            {    if(debugging)
                  {   System.out.println(f + "  unsolved");
                      e.printStackTrace();
                      System.out.println("\n\n");
@@ -230,16 +316,29 @@ public class CielJavaManager implements Serializable
         return dependents;
     }
 
+
+
     private Set<String> getVariablesDependents(Node anyNode)
     {   Set<String> dependents = new HashSet<>();
 
         List<VariableDeclarator> variables = anyNode.findAll(VariableDeclarator.class);
         for(VariableDeclarator v : variables)
         {   try
-            {    ResolvedType rtype = v.resolve().getType();
+            {    // variable type
+                 ResolvedType rtype = v.resolve().getType();
                  String name = rtype.describe();
                  dependents.addAll(getDependentNames(rtype));
-            
+
+
+                 // varialbe initializer
+                 if(v.getInitializer().isPresent())
+                 {   if(v.getInitializer().get().isObjectCreationExpr())
+                     //System.out.println(v.getInitializer().get().calculateResolvedType());
+                     {   ResolvedConstructorDeclaration rc = v.getInitializer().get().asObjectCreationExpr().resolve();
+                         dependents.addAll(getDependentNames(rc));
+                     }
+                 }
+
                  if(debugging)
                  {   System.out.println("variable type: " + name);
                      if(rtype.isReferenceType())
@@ -258,7 +357,26 @@ public class CielJavaManager implements Serializable
         }
         return dependents;
     }
-    
+
+   private Set<String> getSimpleMethodDeclarationDependents(ClassOrInterfaceDeclaration c)
+   {     Set<String> dependents = new HashSet<>();
+         List<MethodDeclaration> declares = c.findAll(MethodDeclaration.class);
+         for(MethodDeclaration md : declares)
+         {   try
+             {   dependents.addAll(getDependentNames(md.resolve()));
+                 if(debugging) System.out.println("---------"+md.resolve().getReturnType().describe()+"----"+ md.getName());
+             }
+             catch(Exception e )
+             {   if(debugging)
+                 {   System.out.println(md.getName()+"---unsolved"); e.printStackTrace();}
+             }
+         }
+         return dependents;
+   }
+
+
+// this version will examine declarations even in the parent classes
+// as a result the whole class needs to be resolved before getting any results
     private Set<String> getMethodDeclarationDependents(ClassOrInterfaceDeclaration c)
     {   Set<String> dependents = new HashSet<>();
         try
@@ -266,7 +384,7 @@ public class CielJavaManager implements Serializable
             {   dependents.addAll(getDependentNames(m));
                 if(debugging) System.out.println("---------"+m.returnType().describe() + "---" + m.getName());
             }
-        } catch(UnsolvedSymbolException e) 
+        } catch(UnsolvedSymbolException e)
         {   if(debugging)
             {   System.out.println(c.getName()+"-- unsolved"); e.printStackTrace();
             }
@@ -274,49 +392,69 @@ public class CielJavaManager implements Serializable
         return dependents;
     }
 
-    private Set<String> getMethodCallDependents(ClassOrInterfaceDeclaration c)
+    private Set<String> getMethodCallDependents(Node c)
     {   Set<String> dependents = new HashSet<>();
         List<MethodCallExpr> calls = c.findAll(MethodCallExpr.class);
         for(MethodCallExpr mc : calls)
         {   try
-            {   dependents.addAll(getDependentNames(mc.resolve()));
-                if(debugging) System.out.println("---------"+mc.resolve().getReturnType().describe()+"----"+ mc.getName());
+            {   ResolvedMethodDeclaration rmd = mc.resolve();
+                // if not already examined
+                if(!cachedMethodCalls.containsKey(rmd.getQualifiedName()))
+                {   Set<String> resultOfThis = getDependentNames(rmd);
+                    dependents.addAll(resultOfThis);
+                    cachedMethodCalls.put(rmd.getQualifiedName(),resultOfThis);
+                    if(debugging) System.out.println("---------"+mc.resolve().getReturnType().describe()+"----"+ mc.getName());
+                }
+                else dependents.addAll(cachedMethodCalls.get(rmd.getQualifiedName()));
             }
-            catch(Exception e ) 
+            catch(Exception e )
             {   if(debugging)
                 {   System.out.println(mc.getName()+"---unsolved"); e.printStackTrace();}
             }
         }
+        //System.out.println(cachedMethodCalls.size()+"--cach size");
         return dependents;
     }
 
     private Set<String> getDependentNames(ResolvedMethodDeclaration rmd)
     {   Set<String> dependents = new HashSet<>();
-        
+
         if(isRelevantDependent(rmd.getClassName())) dependents.add(rmd.getClassName());
         dependents.addAll(getDependentNames(rmd.getReturnType()));
-        //params 
+        //params
         for(int i=0; i<rmd.getNumberOfParams(); i++)
         {   ResolvedType rtype = rmd.getParam(i).getType();
             dependents.addAll(getDependentNames(rtype));
             if(debugging) System.out.println("p: "+getDependentNames(rtype));
         }
-        
+
+        return dependents;
+    }
+
+    private Set<String> getDependentNames(ResolvedConstructorDeclaration rc)
+    {   Set<String> dependents = new HashSet<>();
+        if(isRelevantDependent(rc.getClassName())) dependents.add(rc.getClassName());
+        //params
+        for(int i=0; i<rc.getNumberOfParams(); i++)
+        {   ResolvedType rtype = rc.getParam(i).getType();
+            dependents.addAll(getDependentNames(rtype));
+            if(debugging) System.out.println("p: "+getDependentNames(rtype));
+        }
         return dependents;
     }
 
     private Set<String> getDependentNames(MethodUsage mu)
-    {   return getDependentNames(mu.getDeclaration()); 
+    {   return getDependentNames(mu.getDeclaration());
         // Set<String> dependents = new HashSet<>();
         // dependents.addAll(getDependentNames(mu.returnType()));
-        // 
-        // //params 
+        //
+        // //params
         // for(int i=0; i<mu.getNoParams(); i++)
         // {   ResolvedType rtype = mu.getParamType(i);
         //     dependents.addAll(getDependentNames(rtype));
         //     System.out.println("p: "+getDependentNames(rtype));
         // }
-        // 
+        //
         // return dependents;
     }
 
@@ -331,7 +469,7 @@ public class CielJavaManager implements Serializable
                     rtype.asArrayType().getComponentType()
             ));
         }
-        
+
         if(rtype.isReferenceType())
         {   for(ResolvedType typeParam : rtype.asReferenceType().typeParametersValues())
             {   dependents.addAll(getDependentNames(typeParam));
@@ -342,21 +480,21 @@ public class CielJavaManager implements Serializable
     }
 
     private boolean isRelevantDependent(String name)
-    {   if(classes.containsKey(name))  return true;
+    {   if(classInterfaceEnums.contains(name))  return true;
         else return false;
     }
 
 //debug note  :  constructer, enumeration un solved;
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {   CielJavaManager newManager = new CielJavaManager();
         File root = new File("./");
         List<File> testFiles = new ArrayList<>();
-
+        //testFiles.add(new File("CielControl.java"));
         for(File f : root.listFiles())
         {   if(f.getPath().endsWith(".java"))
             testFiles.add(f);
         }
-        newManager.readJavaFiles(testFiles); 
+        newManager.readJavaFiles(testFiles);
     }
 
 }
