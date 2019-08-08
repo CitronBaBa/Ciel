@@ -1,6 +1,82 @@
 #nameField {
     /* -fx-background-color: rgb(255,255,255,0.4); */
 }
+.root{
+    -fx-background-color: rgb(249,245,244);
+}
+
+.menu-bar { -fx-background-color: rgb(249,245,244); }
+.menu { /* The File menu item */
+   /* -fx-background-color: rgb(111,245,244); */
+ }
+.menu:showing { /* menu when it's being shown (activated) */ }
+.menu .label {
+   -fx-text-fill: rgb(0,0,0);
+}
+.menu:showing .label { /* Styles the text on a menu item when activated */ }
+.menu-item .label {
+    -fx-text-fill: white;
+}
+.menu-item:focused {
+     -fx-background-color: darkgray;
+}
+.menu-item:focused .label {
+    -fx-text-fill: blue;
+}
+.context-menu {
+    /* -fx-skin: "com.sun.javafx.scene.control.skin.ContextMenuSkin"; */
+    -fx-background-color: black;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4;
+/*    -fx-padding: 0.666667em 0.083333em 0.666667em 0.083333em;  8 1 8 1 */
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */
+}
+
+
+.color-picker{
+   -fx-background-color: #faa499;
+   -fx-background-color: linear-gradient(to bottom right, reflect, #faa499 30%, #f7dd85 50%, #ffc55c 100%);
+   -fx-arc-height: 0;
+   -fx-arc-width: 0;
+}
+.color-picker .rectangle{
+   -fx-arc-height: 0;
+   -fx-arc-width: 0;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: rgb(249,245,244);
+}
+.tab-pane
+{
+    -fx-tab-min-width:90px;
+}
+.tab{
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+.tab-pane .tab
+{   -fx-background-color: rgb(188,165,144);
+}
+.tab-pane .tab:selected
+{   -fx-background-color: rgb(244,177,155);
+}
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(255,255,244);
+    /* -fx-font-size: 12px; */
+    -fx-font-weight: bold;
+}
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    /* -fx-text-fill: #96b946; */
+}
+
+#bottom_color_box{
+   -fx-alignment: center-left;
+   -fx-spacing: 0;
+   -fx-fill-height: true;
+   /* -fx-background-color: rgb(255,165,144); */
+}
 
 #curve {
     -fx-smooth: true;

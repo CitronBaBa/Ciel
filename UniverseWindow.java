@@ -56,6 +56,7 @@ public class UniverseWindow extends Application implements Initializable
         Scene scene = new Scene(view, 1100, 800);
         scene.getStylesheets().add("style/style.css");
         scene.getStylesheets().add("style/javaKeyword.css");
+        
         keyControl(scene);
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
@@ -63,9 +64,9 @@ public class UniverseWindow extends Application implements Initializable
         globals.setStage(primaryStage);
 
         cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
-    
+
         textRealm = new TextRealm(cielControl);
-        
+
         splitView = new SplitPane(cielScrolPane,textRealm.getRealm());
         root.setCenter(splitView);
 

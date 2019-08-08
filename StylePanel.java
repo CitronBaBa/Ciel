@@ -50,9 +50,14 @@ public class StylePanel implements CielEventSubscriber
     {   ColorPicker colorPicker = new ColorPicker();
         colorPicker.setOnAction(e->chooseColor(colorPicker.getValue()));
         createColorGird();
+        colorPicker.prefHeightProperty().bind(bottomBox.heightProperty());
         bottomBox.getChildren().addAll(colorGird,colorPicker);
+        bottomBox.setId("bottom_color_box");
+        colorPicker.getStyleClass().add("button");
         Tab colorTab = new Tab("Color",bottomBox);
         Tab interfaceTab = new Tab("interfaces",interfaceGrid);
+        colorTab.setClosable(false);
+        interfaceTab.setClosable(false);
         bottomTabs.getTabs().addAll(colorTab,interfaceTab);
     }
 
