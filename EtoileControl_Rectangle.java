@@ -22,30 +22,42 @@ import javafx.beans.value.*;
 
 // an etoile without anyshape (only text)
 
-public class EtoileControl_EmptyShape extends EtoileControl implements Initializable
-{   public EtoileControl_EmptyShape(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
+public class EtoileControl_Rectangle extends EtoileControl implements Initializable
+{   
+    Rectangle rec;
+
+    public EtoileControl_Rectangle(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
             Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel)
     {   super(etoile,etoileMap,alignMap,cielArea,cielModel);
         primaryView.getChildren().remove(etoileShape);
+        primaryView.getChildren().add(0,rec);
+    }
+    
+    protected void initialSetUp()
+    {   rec = new Rectangle();
+        rec.setArcHeight(15);
+        rec.setArcWidth(15);
+        rec.setFill(Color.rgb(132, 220, 198, 1));
     }
 
     protected void dynamicSizing()
-    {  
-        // primaryView.widthProperty().bind(name.widthProperty());
-        // primaryView.heightProperty().bind(name.heightProperty());
+    {   rec.widthProperty().bind(name.widthProperty().multiply(1.2f));
+        rec.heightProperty().bind(name.heightProperty().multiply(1.2f));
     }
 
-
+/// initally the width value is 0
+//  thanks to the bloody Javafx
     @Override
     protected Point2D giveCenterPoint() //local coordinate system
-    {   return new Point2D(name.getWidth()/2,name.getHeight()/2);
+    {   if(rec.getWidth()==0) return new Point2D(20,10);
+        return new Point2D(rec.getWidth()/2,rec.getHeight()/2);
     }
-    protected Node getMainShape() { return name;}
+    protected Node getMainShape() { return rec;}
     public void setShapeColor(Paint color)
-    {   name.setTextFill(color);
+    {   rec.setFill(color);
     }
     public Color getShapeColor()
-    {   return (Color)name.getTextFill();
+    {   return (Color)rec.getFill();
     }
 
     @Override
@@ -55,7 +67,7 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     }
 
     protected ObservableDoubleValue getWidthProperty()
-    {   return name.widthProperty();
+    {   return rec.widthProperty();
     }
 
     //ciel coordinate system
@@ -63,35 +75,35 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     protected DoubleBinding bottomRightX()
     {   Coordination coor = getEtoile().getCoordination();
         return coor.getXProperty().add
-                (name.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
     protected DoubleBinding bottomRightY()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getYProperty().add
-                (name.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
     protected DoubleBinding bottomLeftX()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getXProperty().subtract
-                (name.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
     protected DoubleBinding bottomLeftY()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getYProperty().add
-                (name.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
     protected DoubleBinding centerRightX()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getXProperty().add
-                (name.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.widthProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
     }
 
     @Override

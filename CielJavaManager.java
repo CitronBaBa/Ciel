@@ -25,8 +25,8 @@ public class CielJavaManager implements Serializable
     private Map<String,double[]> interfaces = new HashMap<>();
     private Map<String,List<Etoile>> implementations = new HashMap<>();
 
-    private final File parsePath = new File("./");
-    private final File jarPath = new File("./FX/lib");
+    private File parsePath = new File("./");
+    private File jarPath = new File("./FX/lib");
 
 
 // caching
@@ -67,6 +67,11 @@ public class CielJavaManager implements Serializable
             dependentEtoiles.add(classes.get(dependentName));
         }
         return dependentEtoiles;
+    }
+
+    public List<Etoile> readJavaFiles(List<File> targetFiles, File parseDir)
+    {   this.parsePath = parseDir;
+        return readJavaFiles(targetFiles);
     }
 
     public List<Etoile> readJavaFiles(List<File> targetFiles)
@@ -242,7 +247,7 @@ public class CielJavaManager implements Serializable
         Set<String> set1 = getVariablesDependents(c);
         timeForVarialbes += (System.currentTimeMillis()-startTime);
         startTime = System.currentTimeMillis();
-        Set<String> set2 = getSimpleMethodDeclarationDependents(c);
+        Set<String> set2 = getMethodDeclarationDependents(c);
         timeForDeclares += (System.currentTimeMillis()-startTime);
         startTime = System.currentTimeMillis();
         Set<String> set3 =getMethodCallDependents(c);

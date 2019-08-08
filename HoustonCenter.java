@@ -22,6 +22,10 @@ public class HoustonCenter
     {   if(index==actionList.size()-1) return;
         actionList.get(++index).redo();
     }
+    public static void clearActionList()
+    {   actionList.clear();
+        index = -1;
+    }
 
     public static void subscribe(CielEventSubscriber subscriber)
     {   subscribers.add(subscriber);

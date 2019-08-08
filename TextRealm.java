@@ -49,8 +49,9 @@ public class TextRealm implements Initializable,CielEventSubscriber
 
         codeAreaSetUp();
         dynamicSizing();
+        keyControl();
     }
-    public Region getRealm() {  return realm;}
+    public Region getRealm() {  return javaArea.getArea();}
 
     private void codeAreaSetUp()
     {   javaArea = new JavaArea();
@@ -59,8 +60,9 @@ public class TextRealm implements Initializable,CielEventSubscriber
     }
 
     private void dynamicSizing()
-    {   javaArea.getArea().prefWidthProperty().bind(realm.prefWidthProperty());
-        javaArea.getArea().prefHeightProperty().bind(realm.prefHeightProperty());
+     { 
+        //javaArea.getArea().prefWidthProperty().bind(realm.maxWidthProperty());
+    //     javaArea.getArea().prefHeightProperty().bind(realm.maxHeightProperty());
     }
 
     private void changeStar ()
@@ -72,6 +74,16 @@ public class TextRealm implements Initializable,CielEventSubscriber
     }
     private void deactivate()
     {   ;
+    }
+
+    private void keyControl()
+    {   final KeyCombination keyCombinationShift1 = new KeyCodeCombination(
+        KeyCode.S, KeyCombination.CONTROL_DOWN);
+    
+        javaArea.getArea().setOnKeyPressed(new EventHandler<KeyEvent>() {
+        public void handle(KeyEvent event)
+        {   saveText();
+        }});
     }
 
     private void saveButton()

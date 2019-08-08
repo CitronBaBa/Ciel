@@ -99,7 +99,11 @@ public class topMenuControl
     {   List<File> javaFiles = askReadJavaFiles();
         if(javaFiles==null) return;
         Ciel cielModel = new Ciel();
-        cielModel.readJavaFiles(javaFiles);
+
+        // a nasty quick way to set parse environment
+        // ideally should open another dialog
+        File parseDir = javaFiles.get(0).getParentFile();
+        cielModel.readJavaFiles(javaFiles,parseDir);
         updateModel(cielModel);
         Platform.runLater(()->{cielControl.getRobot().arrangeAllStars();});
     }
@@ -116,6 +120,7 @@ public class topMenuControl
     private void updateModel(Ciel cielModel)
     {   globals.setCielModel(cielModel);
         HoustonCenter.propagateEvent(CielEvent.LoadNewModel);
+        HoustonCenter.clearActionList();
         cielControl.loadFromCielModel(cielModel);
     }
 

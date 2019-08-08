@@ -6,7 +6,7 @@ import javafx.scene.layout.*;
 import javafx.scene.Parent;
 import javafx.scene.input.*;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.fxml.Initializable;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,6 +34,7 @@ public class UniverseWindow extends Application implements Initializable
     public BorderPane root;
 
     //main parts
+    private SplitPane splitView;
     private CielControl cielControl;
     private TextRealm textRealm;
     private StylePanel stylePanel;
@@ -62,9 +63,11 @@ public class UniverseWindow extends Application implements Initializable
         globals.setStage(primaryStage);
 
         cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
-
+    
         textRealm = new TextRealm(cielControl);
-        root.setRight(textRealm.getRealm());
+        
+        splitView = new SplitPane(cielScrolPane,textRealm.getRealm());
+        root.setCenter(splitView);
 
         stylePanel = new StylePanel(cielControl);
         root.setBottom(stylePanel.getPanel());
@@ -74,16 +77,17 @@ public class UniverseWindow extends Application implements Initializable
         root.setTop(topMenu.getPanel());
 
         dynamicSizing();
+        primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.show();
     }
 
     private void dynamicSizing()
-    {   Scene mainScene = globals.getStage().getScene();
-        ObservableDoubleValue slideValue = topMenu.getSlideValue();
-        textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(
-            Bindings.subtract(1,slideValue)    ));
-        textRealm.getRealm().prefHeightProperty().bind(cielScrolPane.heightProperty());
-        cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(slideValue));
+    {   //Scene mainScene = globals.getStage().getScene();
+        //ObservableDoubleValue slideValue = topMenu.getSlideValue();
+        //textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(
+            // Bindings.subtract(1,slideValue)    ));
+        //textRealm.getRealm().maxHeightProperty().bind(cielScrolPane.prefHeightProperty());
+        //cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(slideValue));
     }
 
     private void keyControl(Scene scene)

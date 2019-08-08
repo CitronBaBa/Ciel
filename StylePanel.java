@@ -121,11 +121,14 @@ public class StylePanel implements CielEventSubscriber
         List<Etoile> targets = implementations.get(interfaceName);
         double[] colorFigures = interfaces.get(interfaceName);
         Color targetColor = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
-        
+
 
         Map<EtoileControl,Color> oldColors = new HashMap<>();
         Map<EtoileControl,Color> newColors = new HashMap<>();
 
+
+        //actions
+        cielControl.restoreAllColors();
         for(Etoile e : targets)
         {   EtoileControl eController = cielControl.getEtoileControls().get(e);
             oldColors.put(eController,eController.getShapeColor());
@@ -133,7 +136,7 @@ public class StylePanel implements CielEventSubscriber
             eController.setShapeColor(targetColor);
         }
 
-        HoustonCenter.recordAction(new MultiColorAction(oldColors,newColors));
+        //HoustonCenter.recordAction(new MultiColorAction(oldColors,newColors));
     }
 
 
@@ -149,7 +152,7 @@ public class StylePanel implements CielEventSubscriber
 
         setMovingEffect(box);
     }
-    
+
     private void setMovingEffect(Node box)
     {   box.setOnMouseEntered(new EventHandler<MouseEvent>() {
         @Override

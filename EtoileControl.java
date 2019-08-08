@@ -19,6 +19,7 @@ import javafx.scene.effect.*;
 import javafx.scene.paint.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
+import javafx.application.Platform;
 
 // "etoileview - primaryview - shape" hierarchy and childArea are essential
 // however their relations can be aribtrary
@@ -50,7 +51,6 @@ public class EtoileControl implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {   innerMouseSetUp();
         textSetUp();
-        scalingSetUp();
         addYourself();
         initalLocate();
         autoUpdatePostion();
@@ -65,8 +65,13 @@ public class EtoileControl implements Initializable
         this.alignMap = alignMap;
         this.cielArea = cielArea;
         this.cielModel = cielModel;
+        initialSetUp();
         loadFromFxml();
         //loadChildren();
+    }
+    
+    protected void initialSetUp()
+    {   ;
     }
 
     private void loadFromFxml()
@@ -117,12 +122,15 @@ public class EtoileControl implements Initializable
         //child
         else
         {   EtoileControl parent = etoileMap.get(monEtoile.getParent());
+            if(monEtoile.getParent()==null) throw new RuntimeException("parent model cannot be found");
+            if(parent==null) throw new RuntimeException("parent cannot be found");
             parent.getChildArea().getChildren().add(etoileView);
             parent.addChildDrawing(this);
             if(!parent.getEtoile().getChildren().contains(monEtoile))
             parent.getEtoile().getChildren().add(monEtoile);
         }
         etoileMap.put(monEtoile,this);
+        scalingSetUp();
         addAllChildDrawing();
         addRelatedAligns();
     }
@@ -135,10 +143,7 @@ public class EtoileControl implements Initializable
         }
         //child
         else
-        {   EtoileControl parent = etoileMap.get(monEtoile.getParent());
-            parent.getChildArea().getChildren().remove(etoileView);
-            cielArea.getChildren().remove(childDraw);
-            parent.getEtoile().getChildren().remove(monEtoile);
+        {   detachFromParentKeepInHeart();
         }
         etoileMap.remove(monEtoile);
         removeAllChildDrawing();
@@ -160,10 +165,36 @@ public class EtoileControl implements Initializable
         }
     }
 
+    private void detachFromParentKeepInHeart()
+    {   EtoileControl parent = etoileMap.get(monEtoile.getParent());
+        parent.getChildArea().getChildren().remove(etoileView);
+        cielArea.getChildren().remove(childDraw);
+
+        // model
+        parent.getEtoile().sendChildAway(monEtoile);
+        // let parent knows, but don't change monEtoile itself
+        // for redo operation (keep in heart)
+    }
+
     public void addChild(EtoileControl childStar)
-    {   monEtoile.addChild(childStar.getEtoile());
-        childArea.getChildren().add(childStar.getView());
-        addChildDrawing(childStar);
+    {   childStar.removeYourself();
+        childStar.getEtoile().becomeSubStar(monEtoile);
+        childStar.addYourself();
+    }
+
+    public void becomeFreeStar()
+    {   removeYourself();
+        monEtoile.detachFromParent();
+        addYourself();
+    }
+    
+    // child star must not be a sub star
+    // should be already freed
+    public void insertChild(EtoileControl childStar)
+    {   //defensive
+        if(childStar.getEtoile().isSubStar()) childStar.becomeFreeStar();
+        
+        addChild(childStar);
     }
 
     public void addAllChildDrawing()
@@ -200,9 +231,16 @@ public class EtoileControl implements Initializable
     }
 
     private void scalingSetUp()
-    {  if(monEtoile.isSubStar()) return;
-      etoileView.scaleXProperty().bind(cielModel.getScaleProperty());
-      etoileView.scaleYProperty().bind(cielModel.getScaleProperty());
+    {   if(monEtoile.isSubStar())
+        {   etoileView.scaleXProperty().unbind();
+            etoileView.scaleYProperty().unbind();
+            etoileView.scaleXProperty().setValue(1.0);
+            etoileView.scaleYProperty().setValue(1.0);
+        }
+        else
+        {   etoileView.scaleXProperty().bind(cielModel.getScaleProperty());
+            etoileView.scaleYProperty().bind(cielModel.getScaleProperty());
+        }
     }
 
     private void test(EtoileControl childStar)
@@ -346,6 +384,11 @@ public class EtoileControl implements Initializable
     }
 
     private void initialStyling()
+    {   //read fxml color to model
+        if(monEtoile.getColor()==null)setColor(getShapeColor());
+        else restoreColor();
+    }
+    public void restoreColor()
     {   setShapeColor(getColor());
     }
 
@@ -356,7 +399,6 @@ public class EtoileControl implements Initializable
     }
     public Color getColor()
     {   double[] colorFigures = monEtoile.getColor();
-        if(colorFigures == null) return getShapeColor();
         return new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
     }
     public void setShapeColor(Paint color)
@@ -371,6 +413,12 @@ public class EtoileControl implements Initializable
     {   locateWithAdjustment(newCoor);
     }
 
+    public void shuffleToTheTop()
+    {   if(monEtoile.isSubStar()) throw new RuntimeException("you are shuffling a sub star, which is illegal");
+        cielArea.getChildren().remove(etoileView);
+        cielArea.getChildren().add(etoileView);
+    }
+
 // locate its self and auto autoPositioning at the same time
 // may cause recursive call and stack over flow
 // try to change the location with bindings
@@ -383,10 +431,19 @@ public class EtoileControl implements Initializable
     {   etoileView.relocate(adjustedCoor.getX(),adjustedCoor.getY());
     }
 
+    // when system shifts the layout by itself, 
+    // lock the place of the primary view;
+    // it's nasty
+    private double layoutY = 0;
     // update the center point to model
     private void autoUpdatePostion()
     {   getMainShape().localToSceneTransformProperty().addListener((obs, oldT, newT) ->
-        {   Point2D originalPosInScene = newT.transform(giveCenterPoint());
+        {   if(layoutY!=primaryView.getLayoutY() && !monEtoile.isSubStar())
+            {   updateStarPos(monEtoile.getCoordination());
+                layoutY = primaryView.getLayoutY();
+                return;
+            }
+            Point2D originalPosInScene = newT.transform(giveCenterPoint());
             Bounds cielBound = cielArea.localToScene(cielArea.getBoundsInLocal());
             double cielX = originalPosInScene.getX() - cielBound.getMinX();
             double cielY = originalPosInScene.getY() - cielBound.getMinY();
@@ -413,16 +470,8 @@ public class EtoileControl implements Initializable
         oriX = oriX + (cielModel.getScale()-1)*shapeCenterToStarCenter;
         double finalX = oriX - inEtoile.getX();
         double finalY = oriY - inEtoile.getY();
-        //System.out.println(inParent);
         return new Coordination(finalX,finalY);
     }
-    // {   Point2D ShapeOri = etoileShape.getLocalToSceneTransform().transform(new Point2D(0,0));
-    //     Point2D overallOri = etoileView.getLocalToSceneTransform().transform(new Point2D(0,0));
-    //     Point2D adjust = new Point2D(ShapeOri.getX()-overallOri.getX(),ShapeOri.getY()-overallOri.getY());
-    //     double finalX = newCoor.getX() - adjust.getX();
-    //     double finalY = newCoor.getY() - adjust.getY();
-    //     System.out.println("adjustment:"+adjust);
-    //     return new Coordination(finalX,finalY);
     private void textSetUp()
     {   nameField.setVisible(false);
         // primaryView.getChildren().remove(nameField);

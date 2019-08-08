@@ -10,5 +10,5 @@ CielRobot:
 	javac $@.java $(jfx)
 	java $(jfx) $@
 UniverseWindow:
-	javac $@.java EtoileControl.java Coordination.java TextRealm.java CielControl.java EtoileControl_EmptyShape.java CielJavaManager.java $(jfx)
+	javac $@.java EtoileControl.java Coordination.java TextRealm.java CielControl.java EtoileControl_EmptyShape.java CielJavaManager.java CielRobot.java $(jfx)
 	java $(jfx) UniverseWindow

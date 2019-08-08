@@ -7,8 +7,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<HBox fx:id="etoileView" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="etoileView" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox alignment="CENTER">
          <children>
@@ -16,7 +15,7 @@
             <StackPane fx:id="primaryView">
                <children>
                   <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="44.0" radiusY="20.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="22.0" prefWidth="68.0" text="Label">
+                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="0.0" prefWidth="0.0" text="Label">
                      <font>
                         <Font size="16.0" />
                      </font>
@@ -31,6 +30,6 @@
             <Region />
          </children>
       </VBox>
-      <VBox fx:id="childArea" spacing="10.0" />
+      <VBox fx:id="childArea" />
    </children>
 </HBox>

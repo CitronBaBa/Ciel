@@ -24,6 +24,13 @@ public class Etoile implements Serializable
     {   isSubStar = true;
         this.parentStar = parentStar;
     }
+    public void detachFromParent()
+    {   isSubStar = false;
+        this.parentStar = null;
+    }
+    public void sendChildAway(Etoile child)
+    {   children.remove(child);
+    }
     public Etoile getParent() {   return parentStar;}
 
     public Etoile(String name)
