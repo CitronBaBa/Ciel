@@ -90,4 +90,7 @@
 #interfaceLabel{
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+    -fx-font-weight: bold;
+    -fx-label-padding: 5,15,5,15;
+    -fx-text-alignment: center;
 }

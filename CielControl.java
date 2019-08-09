@@ -70,7 +70,6 @@ public class CielControl
         this.cielModel = cielModel;
         for(Etoile e : cielModel.getParentEtoiles())
         {   EtoileControl parentStar = drawOneStar(e);
-            drawChildStar(parentStar);
         }
         for(Align a : cielModel.getAligns())
         {   drawOneAlign(a);
@@ -80,13 +79,6 @@ public class CielControl
     }
 
 // ideally this should be moved to etoileControl
-    private void drawChildStar(EtoileControl parentStar)
-    {   for(Etoile eSub : parentStar.getEtoile().getChildren())
-        {   EtoileControl childStar = drawOneStar(eSub);
-            if(eSub.getChildren().size()>0)
-            drawChildStar(childStar);
-        }
-    }
 
     private void removeEverything()
     {   etoileControls.clear();
@@ -217,9 +209,8 @@ public class CielControl
     private EtoileControl drawOneStar(Etoile star)
     {   EtoileControl controller;
         if(star.isSubStar())
-            controller = new EtoileControl_Rectangle(star,etoileControls,alignControls,cielArea,cielModel);
-        else controller = new EtoileControl_Rectangle(star,etoileControls,alignControls,cielArea,cielModel);
-        starSetUp(controller);
+            controller = new EtoileControl_Rectangle(star,etoileControls,alignControls,cielArea,cielModel,e->starSetUp(e));
+        else controller = new EtoileControl_Rectangle(star,etoileControls,alignControls,cielArea,cielModel,e->starSetUp(e));
         HoustonCenter.recordAction(new AddingAction(controller,false));
         return controller;
     }
@@ -299,6 +290,7 @@ public class CielControl
             if(!controller.getEtoile().isSubStar()) controller.shuffleToTheTop();
             else if(event.getButton()==MouseButton.PRIMARY)
             {   EtoileControl oldParent = etoileControls.get(controller.getEtoile().getParent());
+                if(oldParent==null) System.out.println("no parent is found");
                 oldParentWrapper.setValue(oldParent);
                 controller.becomeFreeStar();
                 Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));

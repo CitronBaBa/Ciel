@@ -76,6 +76,29 @@ public class Etoile implements Serializable
     {   if(className!=null) return "ClassName:"+className;
         return "EName:"+name;
     }
+
+// create a brand new kindergarten recursively
+// but the first caller will not copy its parent and return as a free star
+    public Etoile giveADeepCopy()
+    {   Etoile deepCopy = this.giveACopy();
+        for(Etoile child : this.getChildren())
+        {   Etoile childDeepCopy = child.giveADeepCopy();
+            childDeepCopy.becomeSubStar(deepCopy);
+            deepCopy.addChild(childDeepCopy);
+        }
+        return deepCopy;
+    }
+
+// give a free copy (discard parent-child relation)
+    protected Etoile giveACopy()
+    {   Etoile copy = new Etoile(name);
+        copy.setText(text);
+        copy.setColor(color);
+        copy.updateCoordination(etoilePos,viewPos);
+        copy.setClassName(className);
+        return copy;
+    }
+
         // Etoile originalStar = monEtoile; 
         // while(originalStar.isSubStar()) originalStar = originalStar.getParent();      
         // etoileMap.get(originalStar).updateStarPos(originalStar.getCoordination());

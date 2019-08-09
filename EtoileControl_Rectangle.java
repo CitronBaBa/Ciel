@@ -27,8 +27,8 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
     Rectangle rec;
 
     public EtoileControl_Rectangle(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
-            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel)
-    {   super(etoile,etoileMap,alignMap,cielArea,cielModel);
+            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel, BehaviorInjection outerSetup)
+    {   super(etoile,etoileMap,alignMap,cielArea,cielModel,outerSetup);
         primaryView.getChildren().remove(etoileShape);
         primaryView.getChildren().add(0,rec);
     }

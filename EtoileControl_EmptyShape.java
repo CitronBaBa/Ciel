@@ -24,8 +24,8 @@ import javafx.beans.value.*;
 
 public class EtoileControl_EmptyShape extends EtoileControl implements Initializable
 {   public EtoileControl_EmptyShape(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
-            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel)
-    {   super(etoile,etoileMap,alignMap,cielArea,cielModel);
+            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel, BehaviorInjection outerSetup)
+    {   super(etoile,etoileMap,alignMap,cielArea,cielModel,outerSetup);
         primaryView.getChildren().remove(etoileShape);
     }
 

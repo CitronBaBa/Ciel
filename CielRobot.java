@@ -120,14 +120,17 @@ public class CielRobot
         EtoileControl oldParent = null;
 
         public MergeAction(EtoileControl parent, EtoileControl child, Coordination oldPlace)
-        {   this.parent = parent;
+        {   if(oldParent==null) System.out.println("normal merge");
+            this.parent = parent;
             this.child = child;
             this.oldPlace = oldPlace;
         }
         public void undo()
         {   child.becomeFreeStar();
             if(oldParent==null) child.updateStarPos(oldPlace);
-            else oldParent.insertChild(child);
+            else
+            {   System.out.println("old parent inserting");oldParent.insertChild(child);
+            }
         }
         public void redo()
         {   if(oldParent==null) parent.insertChild(child);

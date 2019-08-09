@@ -44,9 +44,14 @@ public class EtoileControl implements Initializable
     private Map<Etoile,EtoileControl> etoileMap;
     private Map<Align,AlignControl> alignMap;
     protected Ciel cielModel;
+    private BehaviorInjection outerSetup;
 
     //caching for related aligns
     List<AlignControl> previousAligns = new ArrayList<>();
+
+    public static interface BehaviorInjection
+    {   public void injectBehavior(EtoileControl etoileControl);
+    }
 
     public void initialize(URL location, ResourceBundle resources)
     {   innerMouseSetUp();
@@ -56,15 +61,18 @@ public class EtoileControl implements Initializable
         autoUpdatePostion();
         initialStyling();
         dynamicSizing();
+
+        outerSetup.injectBehavior(this);
     }
 
     public EtoileControl(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
-            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel)
+            Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel, BehaviorInjection outerSetup)
     {   this.monEtoile = etoile;
         this.etoileMap = etoileMap;
         this.alignMap = alignMap;
         this.cielArea = cielArea;
         this.cielModel = cielModel;
+        this.outerSetup = outerSetup;
         initialSetUp();
         loadFromFxml();
         //loadChildren();
@@ -109,13 +117,25 @@ public class EtoileControl implements Initializable
     public Node getPrimaryView() {  return primaryView;}
     public VBox getChildArea() {  return childArea;}
     public void setChildDraw(Node childDraw){   this.childDraw = childDraw; }
+    public void removeMyChildDraw()
+    {   cielArea.getChildren().remove(childDraw);
+        childDraw = null;
+    }
     public Node getChildDraw() { return childDraw;}
 
-    public void addYourself()
-    {   //parent
-        if(!monEtoile.isSubStar())
-        {   cielArea.getChildren().add(etoileView);
+    public EtoileControl giveADeepCopy()
+    {   Etoile modelDeepCopy = monEtoile.giveADeepCopy();
+        EtoileControl deepCopy = new EtoileControl_Rectangle(modelDeepCopy,etoileMap,alignMap,cielArea,cielModel,outerSetup);
+        return deepCopy;
+    }
 
+    public void addYourself()
+    {   etoileMap.put(monEtoile,this);
+
+        //parent
+        if(!monEtoile.isSubStar())
+        {   drawChildStar();
+            cielArea.getChildren().add(etoileView);
             if(!this.cielModel.getParentEtoiles().contains(monEtoile))
             this.cielModel.getParentEtoiles().add(monEtoile);
         }
@@ -125,14 +145,24 @@ public class EtoileControl implements Initializable
             if(monEtoile.getParent()==null) throw new RuntimeException("parent model cannot be found");
             if(parent==null) throw new RuntimeException("parent cannot be found");
             parent.getChildArea().getChildren().add(etoileView);
-            parent.addChildDrawing(this);
+            if(this.childDraw==null) parent.addChildDrawing(this);
             if(!parent.getEtoile().getChildren().contains(monEtoile))
             parent.getEtoile().getChildren().add(monEtoile);
         }
-        etoileMap.put(monEtoile,this);
+
         scalingSetUp();
         addAllChildDrawing();
         addRelatedAligns();
+    }
+
+    public void drawChildStar()
+    {   for(Etoile eSub : monEtoile.getChildren())
+        {   EtoileControl childStar = etoileMap.get(eSub);
+            if(childStar==null)
+            {   childStar = new EtoileControl_Rectangle(eSub,etoileMap,alignMap,cielArea,cielModel,outerSetup);
+            }
+            childStar.drawChildStar();
+        }
     }
 
     public void removeYourself()
@@ -148,6 +178,16 @@ public class EtoileControl implements Initializable
         etoileMap.remove(monEtoile);
         removeAllChildDrawing();
         removeRelatedAligns();
+    }
+
+    private void removeChildStar()
+    {   for(Etoile eSub : monEtoile.getChildren())
+        {   EtoileControl childStar = etoileMap.get(eSub);
+            if(childStar!=null)
+            {   childStar.removeYourself();
+                childStar.removeChildStar();
+            }
+        }
     }
 
     private void addRelatedAligns()
@@ -168,7 +208,7 @@ public class EtoileControl implements Initializable
     private void detachFromParentKeepInHeart()
     {   EtoileControl parent = etoileMap.get(monEtoile.getParent());
         parent.getChildArea().getChildren().remove(etoileView);
-        cielArea.getChildren().remove(childDraw);
+        removeMyChildDraw();
 
         // model
         parent.getEtoile().sendChildAway(monEtoile);
@@ -201,7 +241,9 @@ public class EtoileControl implements Initializable
     {   for(Etoile e : monEtoile.getChildren())
         {   EtoileControl childStar = etoileMap.get(e);
             if(childStar!=null)
-            {   addChildDrawing(childStar);
+            {    if(childStar.getChildDraw()==null)
+                {   this.addChildDrawing(childStar);
+                }
                 childStar.addAllChildDrawing();
             }
         }
@@ -209,7 +251,7 @@ public class EtoileControl implements Initializable
     public void removeAllChildDrawing()
     {   for(Etoile e : monEtoile.getChildren())
         {   EtoileControl childStar = etoileMap.get(e);
-            cielArea.getChildren().remove(childStar.getChildDraw());
+            childStar.removeMyChildDraw();
             childStar.removeAllChildDrawing();
         }
     }

@@ -29,6 +29,7 @@ public class StylePanel implements CielEventSubscriber
     private GridPane interfaceGrid = new GridPane();
     private int x1 = 0; private int y1 = 0;
 
+    private final double recHeight = 30;
     public Node getPanel()
     {   return bottomTabs;
     }
@@ -70,6 +71,7 @@ public class StylePanel implements CielEventSubscriber
             double[] colorFigures = pair.getValue();
             // Color = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
             Label label = new Label(interfaceName);
+            label.setPrefHeight(recHeight);
             label.setId("interfaceLabel");
             label.setStyle("-fx-background-color:rgb("+colorFigures[0]*255+","+colorFigures[1]*255+
                 ","+colorFigures[2]*255+","+colorFigures[3]+")");
@@ -93,7 +95,7 @@ public class StylePanel implements CielEventSubscriber
         }
     }
     private void drawOneColorBox(Color color)
-    {   Rectangle box = new Rectangle(40,30,color);
+    {   Rectangle box = new Rectangle(40,recHeight,color);
         setBoxBehavior(box);
         placeOneColorBox(box);
     }
