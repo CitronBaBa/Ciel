@@ -56,7 +56,8 @@ public class EtoileControl implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {   innerMouseSetUp();
         textSetUp();
-        addYourself();
+        if(monEtoile.isSubStar()) addYourself();
+        else addYourselfRecursively();
         initalLocate();
         autoUpdatePostion();
         initialStyling();
@@ -134,13 +135,24 @@ public class EtoileControl implements Initializable
         return deepCopy;
     }
 
+    public void addYourselfRecursively()
+    {   addYourself();
+        drawChildStarRecursively();
+    }
+
+    public void addYourGroup()
+    {   addYourself();
+        addChildStarRef(); 
+        addAllChildDrawing();
+    }
+    
     public void addYourself()
     {   etoileMap.put(monEtoile,this);
+        GlobalSatellite.putStarReference(monEtoile,this);
 
         //parent
         if(!monEtoile.isSubStar())
-        {   drawChildStar();
-            cielArea.getChildren().add(etoileView);
+        {   cielArea.getChildren().add(etoileView);
             if(!this.cielModel.getParentEtoiles().contains(monEtoile))
             this.cielModel.getParentEtoiles().add(monEtoile);
         }
@@ -154,20 +166,30 @@ public class EtoileControl implements Initializable
             if(!parent.getEtoile().getChildren().contains(monEtoile))
             parent.getEtoile().getChildren().add(monEtoile);
         }
-        drawChildStar();
         scalingSetUp();
-        addAllChildDrawing();
         addRelatedAligns();
     }
 
-    public void drawChildStar()
+    public void drawChildStarRecursively()
     {   for(Etoile eSub : monEtoile.getChildren())
-        {   EtoileControl childStar = etoileMap.get(eSub);
-            if(childStar==null)
-            {   childStar = new EtoileControl_Rectangle(eSub,etoileMap,alignMap,cielArea,cielModel,outerSetup);
-            }
-            childStar.drawChildStar();
+        {   EtoileControl childStar = new EtoileControl_Rectangle(eSub,etoileMap,alignMap,cielArea,cielModel,outerSetup);
+            childStar.drawChildStarRecursively();
         }
+    }
+
+    private void addChildStarRef()
+    {   for(Etoile eSub : monEtoile.getChildren())
+        {   EtoileControl childStar = GlobalSatellite.getStarControl(eSub);
+            etoileMap.put(eSub,childStar);
+            childStar.addChildStarRef();
+        }
+        addRelatedAligns();
+    }
+
+    public void removeYourGroup()
+    {   removeYourself();
+        removeAllChildDrawing();
+        removeChildStarRef();
     }
 
     public void removeYourself()
@@ -181,13 +203,8 @@ public class EtoileControl implements Initializable
         {   detachFromParentKeepInHeart();
         }
         etoileMap.remove(monEtoile);
-        removeAllChildDrawing();
+        removeMyChildDraw();
         removeRelatedAligns();
-    }
-
-    public void removeYourGroup()
-    {   this.removeYourself();
-        this.removeChildStarRef();
     }
 
     private void removeChildStarRef()
@@ -195,8 +212,8 @@ public class EtoileControl implements Initializable
         {   EtoileControl childStar = etoileMap.get(eSub);
             etoileMap.remove(eSub);
             childStar.removeChildStarRef();
-            removeRelatedAligns();
         }
+        removeRelatedAligns();
     }
 
     private void addRelatedAligns()
@@ -226,15 +243,15 @@ public class EtoileControl implements Initializable
     }
 
     public void addChild(EtoileControl childStar)
-    {   childStar.removeYourself();
+    {   childStar.removeYourGroup();
         childStar.getEtoile().becomeSubStar(monEtoile);
-        childStar.addYourself();
+        childStar.addYourGroup();
     }
 
     public void becomeFreeStar()
-    {   removeYourself();
+    {   removeYourGroup();
         monEtoile.detachFromParent();
-        addYourself();
+        addYourGroup();
     }
     
     // child star must not be a sub star

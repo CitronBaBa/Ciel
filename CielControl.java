@@ -42,7 +42,6 @@ public class CielControl
     {   return etoileControls;
     }
 
-
     private VBox backgroundPopUp;
     private VBox starPopUp;
 
@@ -315,7 +314,7 @@ public class CielControl
                     sudoStar.updateStarPos(newCoor);
                     sudoStarWrapper.set(sudoStar);
                 }             
-                //System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
+                System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
                 event.consume();
             }
         });
@@ -343,19 +342,22 @@ public class CielControl
                     {   target.showStarRecursively();
                         target.becomeFreeStar();
                         target.updateStarPos(newCoor);
+                        sudoStarWrapper.get().removeYourGroup();
                     }
                     HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,target,oldParentWrapper.get()));
                 }
-                if(sudoStarWrapper.get()!=null) 
+                else if(sudoStarWrapper.get()!=null) 
                 {   oriStarWrapper.get().getView().setVisible(true);
                     sudoStarWrapper.get().removeYourGroup();
-                    sudoStarWrapper.setValue(null);
-                    oldParentWrapper.setValue(null);
-                    oriStarWrapper.setValue(null);
                 }
+
+                sudoStarWrapper.setValue(null);
+                oldParentWrapper.setValue(null);
+                oriStarWrapper.setValue(null);
+    
                 System.out.println(etoileControls.values().size()+" : total star on record");
                 //cachedEtoile = null;
-                //System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
+                System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
                 event.consume();
             }
         });
@@ -457,7 +459,7 @@ public class CielControl
     }
 
     private void removeOperation(EtoileControl targetEtoile)
-    {   targetEtoile.removeYourself();
+    {   targetEtoile.removeYourGroup();
         if(selectedEtoile==targetEtoile) unSelectStar();
         HoustonCenter.recordAction(new AddingAction(targetEtoile,true));
         cielArea.getChildren().remove(starPopUp);
@@ -589,15 +591,12 @@ public class CielControl
             this.inverse = inverse;
         }
         public void undo()
-        {   if(!inverse) target.removeYourself();
-            else target.addYourself();
+        {   if(!inverse) target.removeYourGroup();
+            else target.addYourGroup();
         }
         public void redo()
-        {   if(!inverse) target.addYourself();
-            else target.removeYourself();
-        }
-        private void removeStar()
-        {
+        {   if(!inverse) target.addYourGroup();
+            else target.removeYourGroup();
         }
     }
 

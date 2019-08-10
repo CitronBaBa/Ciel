@@ -138,6 +138,7 @@ public class StylePanel implements CielEventSubscriber
         cielControl.restoreAllColors();
         for(Etoile e : targets)
         {   EtoileControl eController = cielControl.getEtoileControls().get(e);
+            if(eController==null) continue;
             oldColors.put(eController,eController.getShapeColor());
             newColors.put(eController,targetColor);
             eController.setShapeColor(targetColor);

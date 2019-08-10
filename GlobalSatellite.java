@@ -24,6 +24,18 @@ public class GlobalSatellite
     //globals
     private Stage mainStage;
     private Ciel cielModel; 
+    private Map<Etoile,EtoileControl> globalStarReferences = new HashMap<>();
+    public static void putStarReference(Etoile e, EtoileControl eC)
+    {   getSatellite().globalStarReferences.put(e,eC);
+    }
+    public static void removeStarReference(Etoile e, EtoileControl eC)
+    {   getSatellite().globalStarReferences.remove(e);
+    }
+    public static EtoileControl getStarControl(Etoile e)
+    {   return getSatellite().globalStarReferences.get(e);
+    }
+
+
 
     private GlobalSatellite()
     {   cielModel = new Ciel();
