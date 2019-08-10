@@ -7,12 +7,12 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox fx:id="etoileView" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="etoileView" pickOnBounds="false" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox alignment="CENTER">
+      <VBox alignment="CENTER" pickOnBounds="false">
          <children>
-            <Region />
-            <StackPane fx:id="primaryView">
+            <Region pickOnBounds="false" />
+            <StackPane fx:id="primaryView" pickOnBounds="false">
                <children>
                   <Ellipse fx:id="etoileShape" fill="#b6dcff" radiusX="44.0" radiusY="20.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
                   <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="0.0" prefWidth="0.0" text="Label">
@@ -27,9 +27,9 @@
                   </Label>
                </children>
             </StackPane>
-            <Region />
+            <Region pickOnBounds="false" />
          </children>
       </VBox>
-      <VBox fx:id="childArea" />
+      <VBox fx:id="childArea" pickOnBounds="false" />
    </children>
 </HBox>
