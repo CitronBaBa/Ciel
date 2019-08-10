@@ -324,7 +324,8 @@ public class CielControl
                 Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
                 
-                boolean isMerged = robot.stopFlyingAndTryMerge(controller,oriCoor);
+                if(oldParentWrapper.get()==null) System.out.println("wrapper has no value");
+                boolean isMerged = robot.stopFlyingAndTryMerge(controller,oldParentWrapper.get(),oriCoor);
                 if(!isMerged) HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,controller,oldParentWrapper.get()));
                 oldParentWrapper.setValue(null);
                 //cachedEtoile = null;

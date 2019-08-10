@@ -29,19 +29,19 @@ public class CielRobot
         this.cielScrolPane = cielScrolPane;
     }
 
-    public boolean stopFlyingAndTryMerge(EtoileControl main, Coordination oldCoor)
+    public boolean stopFlyingAndTryMerge(EtoileControl main, EtoileControl oldParent,Coordination oldCoor)
     {   if(oldHighlightedStar!=null) oldHighlightedStar.removeEffect();
-        boolean result = tryMerge(main,oldCoor);
+        boolean result = tryMerge(main,oldParent,oldCoor);
         oldHighlightedStar = null;
         return result;
     }
 
-    private boolean tryMerge(EtoileControl main, Coordination oldCoor)
+    private boolean tryMerge(EtoileControl main, EtoileControl oldParent, Coordination oldCoor)
     {   if(oldHighlightedStar==main) throw new RuntimeException("merge with itself");
         if(oldHighlightedStar!=null)
         {   oldHighlightedStar.insertChild(main);
             System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
-            HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldCoor));
+            HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor));
             return true;            
         }
         return false;
@@ -119,18 +119,18 @@ public class CielRobot
         Coordination oldPlace;
         EtoileControl oldParent = null;
 
-        public MergeAction(EtoileControl parent, EtoileControl child, Coordination oldPlace)
-        {   if(oldParent==null) System.out.println("normal merge");
-            this.parent = parent;
+        public MergeAction(EtoileControl parent, EtoileControl child, EtoileControl oldParent, Coordination oldPlace)
+        {   this.parent = parent;
             this.child = child;
             this.oldPlace = oldPlace;
+            this.oldParent = oldParent;
         }
+
         public void undo()
         {   child.becomeFreeStar();
             if(oldParent==null) child.updateStarPos(oldPlace);
-            else
-            {   System.out.println("old parent inserting");oldParent.insertChild(child);
-            }
+            else oldParent.insertChild(child);
+            
         }
         public void redo()
         {   if(oldParent==null) parent.insertChild(child);

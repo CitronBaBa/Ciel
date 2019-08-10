@@ -125,7 +125,7 @@ public class EtoileControl implements Initializable
 
     public EtoileControl giveADeepCopy()
     {   Etoile modelDeepCopy = monEtoile.giveADeepCopy();
-        EtoileControl deepCopy = new EtoileControl_Rectangle(modelDeepCopy,etoileMap,alignMap,cielArea,cielModel,outerSetup);
+        EtoileControl deepCopy = new EtoileControl(modelDeepCopy,etoileMap,alignMap,cielArea,cielModel,outerSetup);
         return deepCopy;
     }
 
@@ -149,7 +149,7 @@ public class EtoileControl implements Initializable
             if(!parent.getEtoile().getChildren().contains(monEtoile))
             parent.getEtoile().getChildren().add(monEtoile);
         }
-
+        drawChildStar();
         scalingSetUp();
         addAllChildDrawing();
         addRelatedAligns();
@@ -263,12 +263,13 @@ public class EtoileControl implements Initializable
         // loading from file
         // this case can be eliminated once child is loaded recursively from inside
         // (instead of sepaately in cielControl)
-        if(monEtoile.getViewCoor()!=null)
-        {   locateDirectly(monEtoile.getViewCoor());
-            return;
-        }
+        // if(monEtoile.getViewCoor()!=null)
+        // {   locateDirectly(monEtoile.getViewCoor());
+        //     return;
+        // }
 
         etoileView.layout();
+        //System.out.println(primaryView.getLayoutY());
         updateStarPos(monEtoile.getCoordination());
     }
 
@@ -480,7 +481,8 @@ public class EtoileControl implements Initializable
     // update the center point to model
     private void autoUpdatePostion()
     {   getMainShape().localToSceneTransformProperty().addListener((obs, oldT, newT) ->
-        {   if(layoutY!=primaryView.getLayoutY() && !monEtoile.isSubStar())
+        {   
+            if(layoutY!=primaryView.getLayoutY() && !monEtoile.isSubStar())
             {   updateStarPos(monEtoile.getCoordination());
                 layoutY = primaryView.getLayoutY();
                 return;
@@ -512,13 +514,14 @@ public class EtoileControl implements Initializable
         oriX = oriX + (cielModel.getScale()-1)*shapeCenterToStarCenter;
         double finalX = oriX - inEtoile.getX();
         double finalY = oriY - inEtoile.getY();
+        //System.out.println(giveCenterPoint());
         return new Coordination(finalX,finalY);
     }
     private void textSetUp()
     {   nameField.setVisible(false);
         // primaryView.getChildren().remove(nameField);
         nameField.setText(monEtoile.getName());
-         name.textProperty().bind(nameField.textProperty());
+        name.textProperty().bind(nameField.textProperty());
     }
 
     private void innerMouseSetUp()
@@ -558,9 +561,15 @@ public class EtoileControl implements Initializable
         nameField.requestFocus();
     }
     private void finishEditting()
-    {   monEtoile.setName(nameField.getText());
+    {   String oldName = monEtoile.getName();
+        monEtoile.setName(nameField.getText());
         nameField.setVisible(false);
         name.setVisible(true);
+        HoustonCenter.recordAction(new ChangeNameAction(oldName,nameField.getText(),this));
+    }
+    public void setName(String name)
+    {   nameField.setText(name);
+        monEtoile.setName(name);
     }
 
     public void addEffect()
@@ -590,5 +599,27 @@ public class EtoileControl implements Initializable
             glowEffect.setLevel(initialLevel-0.5);
         }
         //System.out.println(((Glow)targetNode.getEffect()).getLevel());
+    }
+
+
+
+    private static class ChangeNameAction implements CielAction
+    {   private String oldName;
+        private String newName;
+        private EtoileControl target;
+
+        public ChangeNameAction(String oldName, String newName, EtoileControl target)
+        {   this.oldName = oldName;
+            this.newName = newName;
+            this.target = target;
+        }
+
+        public void redo()
+        {   target.setName(newName);
+        }
+        public void undo()
+        {   target.setName(oldName);
+        }
+        
     }
 }
