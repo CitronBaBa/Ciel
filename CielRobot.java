@@ -20,9 +20,7 @@ import javafx.scene.effect.*;
 public class CielRobot
 {   private Map<Etoile,EtoileControl> etoileControls;
     private ScrollPane cielScrolPane;
-
     private EtoileControl oldHighlightedStar = null;
-
 
     public CielRobot(Map<Etoile,EtoileControl> etoileControls, ScrollPane cielScrolPane)
     {   this.etoileControls = etoileControls;
@@ -39,7 +37,11 @@ public class CielRobot
     private boolean tryMerge(EtoileControl main, EtoileControl oldParent, Coordination oldCoor)
     {   if(oldHighlightedStar==main) throw new RuntimeException("merge with itself");
         if(oldHighlightedStar!=null)
-        {   oldHighlightedStar.insertChild(main);
+        {   if(main.getEtoile().isSubStar())
+            {   main.showStarRecursively();
+                main.becomeFreeStar();            
+            }
+            oldHighlightedStar.insertChild(main);
             System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
             HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor));
             return true;            
@@ -68,6 +70,7 @@ public class CielRobot
     {   Bounds flyingEtoileBound = getBoundsInScene(yourself.getPrimaryView());
         for(EtoileControl e : etoileControls.values())
         {   if(e==yourself) continue;
+            if(e.getView().isVisible()==false) continue;
             Node viewBeneath = e.getPrimaryView();
             Bounds beneathBounds = viewBeneath.localToScene(viewBeneath.getBoundsInLocal());
             if(beneathBounds.intersects(flyingEtoileBound))
@@ -80,7 +83,6 @@ public class CielRobot
     private Bounds getBoundsInScene(Node node)
     {   return node.localToScene(node.getBoundsInLocal());
     }
-
 
     public void arrangeAllStars()
     {   List<EtoileControl> remainList = new ArrayList<>();

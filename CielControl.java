@@ -262,9 +262,13 @@ public class CielControl
 
     private Coordination mousePressXY = new Coordination(0,0);
     
+
+    private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>(); 
+    private final ObjectProperty<EtoileControl> sudoStarWrapper = new SimpleObjectProperty<>();
+    private final ObjectProperty<EtoileControl> oriStarWrapper = new SimpleObjectProperty<>();
     private void starMouseSetUp(EtoileControl controller)
     {   final Coordination oldCoor = new Coordination(0,0);
-        final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>(); 
+
         controller.getPrimaryView().setOnMouseDragged(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
@@ -273,11 +277,14 @@ public class CielControl
             }
 
             Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
-            controller.updateStarPos(newCoor);
+            EtoileControl target = controller;
+            if(sudoStarWrapper.get()!=null) target = sudoStarWrapper.get();
+
+            target.updateStarPos(newCoor);
             //flying over something
-            //System.out.println("star:"+controller.getEtoile().getName()+" dragged");
-            robot.highlightHoveredStar(controller);
+            robot.highlightHoveredStar(target);
             event.consume();
+            //System.out.println("star:"+controller.getEtoile().getName()+" dragged");
         }
         });
 
@@ -288,15 +295,6 @@ public class CielControl
             oldCoor.setX(controller.getEtoile().getCoordination().getX());
             oldCoor.setY(controller.getEtoile().getCoordination().getY());
             if(!controller.getEtoile().isSubStar()) controller.shuffleToTheTop();
-            else if(event.getButton()==MouseButton.PRIMARY)
-            {   EtoileControl oldParent = etoileControls.get(controller.getEtoile().getParent());
-                if(oldParent==null) System.out.println("no parent is found");
-                oldParentWrapper.setValue(oldParent);
-                controller.becomeFreeStar();
-                Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
-                controller.updateStarPos(newCoor);
-                event.setDragDetect(true);
-            }        
             //System.out.println("star:"+controller.getEtoile().getName()+" pressed");
             event.consume();
         }
@@ -304,7 +302,19 @@ public class CielControl
 
         controller.getPrimaryView().setOnDragDetected(new EventHandler<MouseEvent>()
         {   public void handle(MouseEvent event)
-            {   controller.getPrimaryView().startFullDrag();        
+            {   controller.getPrimaryView().startFullDrag();   
+                if(controller.getEtoile().isSubStar())
+                {   EtoileControl oldParent = etoileControls.get(controller.getEtoile().getParent());
+                    if(oldParent==null) System.out.println("no parent is found");
+                    oldParentWrapper.setValue(oldParent);
+                    oriStarWrapper.setValue(controller);
+
+                    EtoileControl sudoStar = controller.giveADeepCopy();
+                    controller.hideStarRecursively();
+                    Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+                    sudoStar.updateStarPos(newCoor);
+                    sudoStarWrapper.set(sudoStar);
+                }             
                 //System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
                 event.consume();
             }
@@ -324,10 +334,26 @@ public class CielControl
                 Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
                 
-                if(oldParentWrapper.get()==null) System.out.println("wrapper has no value");
-                boolean isMerged = robot.stopFlyingAndTryMerge(controller,oldParentWrapper.get(),oriCoor);
-                if(!isMerged) HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,controller,oldParentWrapper.get()));
-                oldParentWrapper.setValue(null);
+                EtoileControl target = controller;
+                if(oriStarWrapper.get()!=null) target = oriStarWrapper.get(); 
+
+                boolean isMerged = robot.stopFlyingAndTryMerge(target,oldParentWrapper.get(),oriCoor);
+                if(!isMerged)
+                {   if(sudoStarWrapper.get()!=null)
+                    {   target.showStarRecursively();
+                        target.becomeFreeStar();
+                        target.updateStarPos(newCoor);
+                    }
+                    HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,target,oldParentWrapper.get()));
+                }
+                if(sudoStarWrapper.get()!=null) 
+                {   oriStarWrapper.get().getView().setVisible(true);
+                    sudoStarWrapper.get().removeYourGroup();
+                    sudoStarWrapper.setValue(null);
+                    oldParentWrapper.setValue(null);
+                    oriStarWrapper.setValue(null);
+                }
+                System.out.println(etoileControls.values().size()+" : total star on record");
                 //cachedEtoile = null;
                 //System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
                 event.consume();
