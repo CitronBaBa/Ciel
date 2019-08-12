@@ -25,6 +25,11 @@ import javafx.application.Platform;
 // however their relations can be aribtrary
 // with minor or zero modification it will still work
 
+
+/**** global star reference needs to be cleared when etoile is definitely
+removed for memory relieving***/
+/* currently this is not adressed*/
+
 // when inherited, all protected methods need to be override or checked
 public class EtoileControl implements Initializable
 {
