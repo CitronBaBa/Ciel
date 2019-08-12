@@ -192,6 +192,7 @@ public class CielControl
     {   Etoile newEtoile = new Etoile("empty");
         newEtoile.updateCoordination(newCoor);
         EtoileControl controller = drawOneStar(newEtoile);
+        cielArea.requestFocus();
     }
 
     private void drawOneAlign(Align align)
@@ -255,12 +256,6 @@ public class CielControl
 // cause mouse_drag not delivered to the sub star 
 // currently shuffling in pressed event;
 
-    private boolean judgeIfDragged(MouseEvent event)
-    {   return true;
-    }
-
-    private Coordination mousePressXY = new Coordination(0,0);
-    
 
     private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>(); 
     private final ObjectProperty<EtoileControl> sudoStarWrapper = new SimpleObjectProperty<>();
@@ -335,16 +330,19 @@ public class CielControl
                 
                 EtoileControl target = controller;
                 if(oriStarWrapper.get()!=null) target = oriStarWrapper.get(); 
+                
 
-                boolean isMerged = robot.stopFlyingAndTryMerge(target,oldParentWrapper.get(),oriCoor);
+                boolean isMerged = robot.stopFlyingAndTryMerge(target,oldParentWrapper.get(),sudoStarWrapper.get(),oriCoor);
                 if(!isMerged)
-                {   if(sudoStarWrapper.get()!=null)
-                    {   target.showStarRecursively();
+                {   int index = 0;
+                    if(sudoStarWrapper.get()!=null)
+                    {   index = oldParentWrapper.get().getEtoile().getChildren().indexOf(target.getEtoile());
+                        target.showStarRecursively();
                         target.becomeFreeStar();
                         target.updateStarPos(newCoor);
                         sudoStarWrapper.get().removeYourGroup();
                     }
-                    HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,target,oldParentWrapper.get()));
+                    HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,target,oldParentWrapper.get(),index));
                 }
                 else if(sudoStarWrapper.get()!=null) 
                 {   oriStarWrapper.get().getView().setVisible(true);
@@ -451,6 +449,7 @@ public class CielControl
     private void branchingOperation(EtoileControl parentStar)
     {   EtoileControl newStar = drawOneStar(new Etoile("empty",true,parentStar.getEtoile()));
         cielArea.getChildren().remove(starPopUp);
+        cielArea.requestFocus();
     }
 
     public void removeSelected()
@@ -463,6 +462,7 @@ public class CielControl
         if(selectedEtoile==targetEtoile) unSelectStar();
         HoustonCenter.recordAction(new AddingAction(targetEtoile,true));
         cielArea.getChildren().remove(starPopUp);
+        cielArea.requestFocus();
     }
 
     private Coordination getCielRelativeCoor(Coordination sceneCoor)
@@ -488,7 +488,7 @@ public class CielControl
         @Override
         public void handle(MouseEvent event)
         {   if(event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 1)
-            {   clearAnyActionOrEffect();
+            {   clearSelectionOrEffect();
             }
             if(event.getButton()==MouseButton.SECONDARY && event.getClickCount()==1)
             {   double x = event.getX();
@@ -508,16 +508,21 @@ public class CielControl
                 event.consume();
             }
             if(event.getClickCount() == 1)
-            {   cielArea.getChildren().remove(starPopUp);
-                cielArea.getChildren().remove(backgroundPopUp);
+            {   clearAnyEffect();
             }
         };
         });
     }
 
-    private void clearAnyActionOrEffect()
+    private void clearSelectionOrEffect()
     {   unSelectStar();
-        restoreAllColors();   
+        clearAnyEffect();
+    }
+    private void clearAnyEffect()
+    {   restoreAllColors();  
+        discardAlignOperation();
+        cielArea.getChildren().remove(starPopUp);
+        cielArea.getChildren().remove(backgroundPopUp);
     }
 
     private void focuseEffect(Coordination newCoor)
@@ -530,27 +535,21 @@ public class CielControl
 
     private void backgroundMouseSetUp(Node background)
     {
-        // background.setOnMouseClicked(new EventHandler<MouseEvent>() {
-        // @Override
-        // public void handle(MouseEvent event)
-        // {   if(event.getButton()==MouseButton.SECONDARY && event.getClickCount()==1)
-        //     {   double x = event.getX();
-        //         double y = event.getY();
-        //         if(!cielArea.getChildren().contains(backgroundPopUp))
-        //         cielArea.getChildren().add(backgroundPopUp);
-        //         backgroundPopUp.relocate(x,y);
-        //     }
-        // }
-        // });
+    }
+
+    private void discardAlignOperation()
+    {   if(nearsetStar!=null) nearsetStar.removeEffect();
+        if(newAlignCurve!=null) cielArea.getChildren().remove(newAlignCurve);
+        newAlignCurve = null;
+        fromStar = null;
     }
 
     private void alignOneStar(Coordination targetCoor)
-    {   Align newAlign = new Align(fromStar.getEtoile(),nearsetStar.getEtoile());
-        addOneAlign(newAlign);
-        cielArea.getChildren().remove(newAlignCurve);
-        nearsetStar.removeEffect();
-        newAlignCurve = null;
-        fromStar = null;
+    {   if(fromStar!=nearsetStar)
+        {   Align newAlign = new Align(fromStar.getEtoile(),nearsetStar.getEtoile());
+            addOneAlign(newAlign);
+        }
+        discardAlignOperation();
     }
 
     private EtoileControl findNearestStar(double x, double y)
@@ -630,12 +629,14 @@ public class CielControl
 
         //only when star is a sub star before moving to free places
         EtoileControl oldParent = null;
+        int index;
 
-        public MovingAction(Coordination oldCoor, Coordination newCoor, EtoileControl controller, EtoileControl oldParent)
+        public MovingAction(Coordination oldCoor, Coordination newCoor, EtoileControl controller, EtoileControl oldParent, int index)
         {   this.oldCoor = oldCoor;
             this.newCoor = newCoor;
             this.controller = controller;
             this.oldParent = oldParent;
+            this.index = index;
         }
 
         public void undo()
@@ -644,7 +645,7 @@ public class CielControl
                 //System.out.println("normal undo");
             }
             else
-            {       oldParent.insertChild(controller);
+            {       oldParent.insertChild(controller,index);
                     //System.out.println("abnormal undo");
             }
             

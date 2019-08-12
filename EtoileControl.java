@@ -256,11 +256,17 @@ public class EtoileControl implements Initializable
     
     // child star must not be a sub star
     // should be already freed
-    public void insertChild(EtoileControl childStar)
+    public void insertChild(EtoileControl childStar, int targetPos)
     {   //defensive
         if(childStar.getEtoile().isSubStar()) childStar.becomeFreeStar();
         
         addChild(childStar);
+
+        //adjust to target position
+        childArea.getChildren().remove(childStar.getView());
+        childArea.getChildren().add(targetPos,childStar.getView());
+        monEtoile.getChildren().remove(childStar.getEtoile());
+        monEtoile.getChildren().add(targetPos,childStar.getEtoile());
     }
 
     public void hideStarRecursively()
@@ -395,16 +401,7 @@ public class EtoileControl implements Initializable
         moveTo.xProperty().bind(bottomRightX());
         moveTo.yProperty().bind(bottomRightY());
 
-        QuadCurveTo quadCurveTo = new QuadCurveTo();
-        quadCurveTo.xProperty().bind(childStar.bottomLeftX());
-        quadCurveTo.yProperty().bind(childStar.bottomLeftY());
-
-        quadCurveTo.controlXProperty().bind(
-                childStar.getEtoile().getCoordination().getXProperty()
-                .add(coor.getXProperty()).divide(2.0f)  );
-        quadCurveTo.controlYProperty().bind(
-                childStar.getEtoile().getCoordination().getYProperty()
-                .add(coor.getYProperty()).divide(2.0f)  );
+        CubicCurveTo cubicTo = drawACubicCurve(childStar,bottomRightX(),bottomRightY());
 
         // ArcTo arcTo = new ArcTo();
         // arcTo.xProperty().bind(childStar.bottomLeftX());
@@ -417,11 +414,24 @@ public class EtoileControl implements Initializable
         lineTo.yProperty().bind(childStar.bottomRightY());
 
         childPath.getElements().add(moveTo);
-        childPath.getElements().add(quadCurveTo);
+        childPath.getElements().add(cubicTo);
         childPath.getElements().add(lineTo);
         childPath.setId("curve");
         childStar.setChildDraw(childPath);
         cielArea.getChildren().add(childPath);
+    }
+
+    private CubicCurveTo drawACubicCurve(EtoileControl childStar, ObservableValue<Number> oriX, ObservableValue<Number> oriY)
+    {   CubicCurveTo curve = new CubicCurveTo();
+
+        curve.xProperty().bind(childStar.bottomLeftX());
+        curve.yProperty().bind(childStar.bottomLeftY());
+
+        curve.controlX2Property().bind(oriX);
+        curve.controlY2Property().bind(childStar.bottomLeftY());
+        curve.controlX1Property().bind(childStar.bottomLeftX());
+        curve.controlY1Property().bind(oriY);
+        return curve;
     }
 
     // private ObservableNumberValue calculateRadius(EtoileControl childStar)
@@ -446,23 +456,14 @@ public class EtoileControl implements Initializable
         moveTo.xProperty().bind(centerRightX());
         moveTo.yProperty().bind(centerRightY());
 
-        QuadCurveTo quadCurveTo = new QuadCurveTo();
-        quadCurveTo.xProperty().bind(childStar.bottomLeftX());
-        quadCurveTo.yProperty().bind(childStar.bottomLeftY());
-
-        quadCurveTo.controlXProperty().bind(
-                childStar.getEtoile().getCoordination().getXProperty()
-                .add(coor.getXProperty()).divide(2.0f)  );
-        quadCurveTo.controlYProperty().bind(
-                childStar.getEtoile().getCoordination().getYProperty()
-                .add(coor.getYProperty()).divide(2.0f)  );
+        CubicCurveTo cubicTo = drawACubicCurve(childStar,centerRightX(),centerRightY());
 
         LineTo lineTo = new LineTo();
         lineTo.xProperty().bind(childStar.bottomRightX());
         lineTo.yProperty().bind(childStar.bottomRightY());
 
         childPath.getElements().add(moveTo);
-        childPath.getElements().add(quadCurveTo);
+        childPath.getElements().add(cubicTo);
         childPath.getElements().add(lineTo);
         childPath.setId("curve");
         childStar.setChildDraw(childPath);

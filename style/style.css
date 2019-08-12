@@ -87,6 +87,15 @@
     -fx-stroke-line-join: round;
 }
 
+#arrow{
+    -fx-fill: rgb(253,155,171);
+    -fx-smooth: true;
+    -fx-stroke: rgb(253,155,171);
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
 #interfaceLabel{
     -fx-font-size: 16px;
     -fx-font-weight: bold;

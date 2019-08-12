@@ -27,23 +27,29 @@ public class CielRobot
         this.cielScrolPane = cielScrolPane;
     }
 
-    public boolean stopFlyingAndTryMerge(EtoileControl main, EtoileControl oldParent,Coordination oldCoor)
+    public boolean stopFlyingAndTryMerge(EtoileControl main, EtoileControl oldParent,EtoileControl sudoE, Coordination oldCoor)
     {   if(oldHighlightedStar!=null) oldHighlightedStar.removeEffect();
-        boolean result = tryMerge(main,oldParent,oldCoor);
+        boolean result = tryMerge(main,oldParent,sudoE,oldCoor);
         oldHighlightedStar = null;
         return result;
     }
 
-    private boolean tryMerge(EtoileControl main, EtoileControl oldParent, Coordination oldCoor)
+    private boolean tryMerge(EtoileControl main, EtoileControl oldParent, EtoileControl sudoE, Coordination oldCoor)
     {   if(oldHighlightedStar==main) throw new RuntimeException("merge with itself");
         if(oldHighlightedStar!=null)
-        {   if(main.getEtoile().isSubStar())
+        {   int oldIndex = 0; int index = 0;
+            index = caculateInsertationPos(oldHighlightedStar,main);
+            if(oldParent!=null) 
+            {   oldIndex = oldParent.getEtoile().getChildren().indexOf(main.getEtoile());
+                index = caculateInsertationPos(oldHighlightedStar,sudoE);
+            }
+            if(main.getEtoile().isSubStar())
             {   main.showStarRecursively();
                 main.becomeFreeStar();            
             }
-            oldHighlightedStar.insertChild(main);
+            oldHighlightedStar.insertChild(main,index);
             System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
-            HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor));
+            HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor,oldIndex,index));
             return true;            
         }
         return false;
@@ -68,21 +74,51 @@ public class CielRobot
 
     private EtoileControl findHoveredOverStar(EtoileControl yourself)
     {   Bounds flyingEtoileBound = getBoundsInScene(yourself.getPrimaryView());
+
+        EtoileControl resultE = null;
+        double maxOverlapPercentage = 0;
         for(EtoileControl e : etoileControls.values())
         {   if(e==yourself) continue;
             if(e.getView().isVisible()==false) continue;
-            Node viewBeneath = e.getPrimaryView();
-            Bounds beneathBounds = viewBeneath.localToScene(viewBeneath.getBoundsInLocal());
+            Bounds beneathBounds = getBoundsInScene(e.getPrimaryView());
             if(beneathBounds.intersects(flyingEtoileBound))
-            {   return e;
+            {   // intersected surface divded by flying surface
+                double percent = caculateIntersectPercentage(beneathBounds,flyingEtoileBound); 
+                if(percent>maxOverlapPercentage)
+                {   maxOverlapPercentage = percent;
+                    resultE = e;
+                }
             }
         }
-        return null;
+        return resultE;
     }
 
     private Bounds getBoundsInScene(Node node)
     {   return node.localToScene(node.getBoundsInLocal());
     }
+
+    private double caculateIntersectPercentage(Bounds a, Bounds b)
+    {   double leftX = Math.max(a.getMinX(),b.getMinX());
+        double rightX = Math.min(a.getMaxX(),b.getMaxX());
+        double topY = Math.max(a.getMinY(),b.getMinY());
+        double bottomY = Math.min(a.getMaxY(),b.getMaxY());
+        if(leftX>rightX) return 0;
+        return (rightX-leftX)*(bottomY-topY)/(b.getWidth()*b.getHeight());
+    }
+
+// using center point may be more intuitive
+    private int caculateInsertationPos(EtoileControl parent, EtoileControl futureChild)
+    {   int num = parent.getEtoile().getChildren().size();
+        double targetY = getBoundsInScene(futureChild.getPrimaryView()).getMinY();
+        for(int index=0; index<num; index++)
+        {   EtoileControl currentChild = etoileControls.get(parent.getEtoile().getChildren().get(index));
+            double currentY = getBoundsInScene(currentChild.getPrimaryView()).getMinY();
+            if(targetY<currentY) return index;
+        }
+        if(num==0) return 0;
+        return (num-1);
+    }
+
 
     public void arrangeAllStars()
     {   List<EtoileControl> remainList = new ArrayList<>();
@@ -120,25 +156,29 @@ public class CielRobot
     {   EtoileControl parent,child;
         Coordination oldPlace;
         EtoileControl oldParent = null;
+        int oldIndex;
+        int newIndex;
 
-        public MergeAction(EtoileControl parent, EtoileControl child, EtoileControl oldParent, Coordination oldPlace)
+        public MergeAction(EtoileControl parent, EtoileControl child, EtoileControl oldParent, Coordination oldPlace, int oldIndex, int newIndex)
         {   this.parent = parent;
             this.child = child;
             this.oldPlace = oldPlace;
             this.oldParent = oldParent;
+            this.oldIndex = oldIndex;     
+            this.newIndex = newIndex;
         }
 
         public void undo()
         {   child.becomeFreeStar();
             if(oldParent==null) child.updateStarPos(oldPlace);
-            else oldParent.insertChild(child);
+            else oldParent.insertChild(child,oldIndex);
             
         }
         public void redo()
-        {   if(oldParent==null) parent.insertChild(child);
+        {   if(oldParent==null) parent.insertChild(child,newIndex);
             else
             {   child.becomeFreeStar();
-                parent.insertChild(child);
+                parent.insertChild(child,newIndex);
             }
         }
     }
