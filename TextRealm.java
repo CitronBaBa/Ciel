@@ -37,6 +37,13 @@ public class TextRealm implements Initializable,CielEventSubscriber
     {   if(event == CielEvent.ChangeFocus)
         {   changeStar();
         }
+        if(event == CielEvent.LoadNewModel)
+        {   saveText();
+            deactivate();
+        }
+        if(event == CielEvent.SaveModel)
+        {   saveText();
+        }
     }
 
     public TextRealm(CielControl cielControl) throws Exception
@@ -49,7 +56,7 @@ public class TextRealm implements Initializable,CielEventSubscriber
 
         codeAreaSetUp();
         dynamicSizing();
-        keyControl();
+        // keyControl();
     }
     public Region getRealm() {  return javaArea.getArea();}
 
@@ -66,25 +73,26 @@ public class TextRealm implements Initializable,CielEventSubscriber
     }
 
     private void changeStar ()
-    {   targetEtoile = cielControl.getSelectedStar();
+    {   saveText();
+        targetEtoile = cielControl.getSelectedStar();
         if(targetEtoile!=null)
         {   javaArea.loadText(targetEtoile.getEtoile().getText());
         }
         else deactivate();
     }
     private void deactivate()
-    {   ;
+    {   javaArea.loadText("");
     }
 
-    private void keyControl()
-    {   final KeyCombination keyCombinationShift1 = new KeyCodeCombination(
-        KeyCode.S, KeyCombination.CONTROL_DOWN);
-    
-        javaArea.getArea().setOnKeyPressed(new EventHandler<KeyEvent>() {
-        public void handle(KeyEvent event)
-        {   saveText();
-        }});
-    }
+    // private void keyControl()
+    // {   final KeyCombination keyCombinationShift1 = new KeyCodeCombination(
+    //     KeyCode.S, KeyCombination.CONTROL_DOWN);
+    // 
+    //     javaArea.getArea().setOnKeyPressed(new EventHandler<KeyEvent>() {
+    //     public void handle(KeyEvent event)
+    //     {   saveText();
+    //     }});
+    // }
 
     private void saveButton()
     {   save.setOnAction(e->saveText());

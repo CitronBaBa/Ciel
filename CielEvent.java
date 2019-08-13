@@ -1,1 +1,1 @@
-enum CielEvent{ChangeFocus,LoadNewModel,LoadModelFromJava};
+enum CielEvent{ChangeFocus,LoadNewModel,LoadModelFromJava,SaveModel};

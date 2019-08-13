@@ -47,7 +47,7 @@
 }
 
 .tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: rgb(249,245,244);
+    -fx-background-color: transparent;
 }
 .tab-pane
 {
@@ -77,7 +77,7 @@
    -fx-alignment: center-left;
    -fx-spacing: 0;
    -fx-fill-height: true;
-    fx-background-color: rgb(249,245,244);
+    fx-background-color: transparent;
 }
 
 #curve {

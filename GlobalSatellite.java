@@ -25,7 +25,10 @@ public class GlobalSatellite
     private Stage mainStage;
     private Ciel cielModel; 
     private String filePath = null;
-    public void setFilePath(String path){ this.filePath = path;}
+    public void setFilePath(String path)
+    {   this.filePath = path;
+        mainStage.setTitle("Ciel: "+path);
+    }
     public String getFilePath() { return filePath;}
 
     private Map<Etoile,EtoileControl> globalStarReferences = new HashMap<>();

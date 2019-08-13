@@ -61,6 +61,7 @@ public class StylePanel implements CielEventSubscriber
         colorTab.setClosable(false);
         interfaceTab.setClosable(false);
         bottomTabs.getTabs().addAll(colorTab,interfaceTab);
+        bottomTabs.setPickOnBounds(false);
         updateInterfacePanel();
     }
 

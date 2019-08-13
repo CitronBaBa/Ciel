@@ -44,7 +44,7 @@ import com.github.javaparser.ast.expr.*;
 public class JavaArea
 {   private StackPane javaArea;
     private CodeArea codeArea;
-    private int fontsize = 15;
+    private int fontsize = 14;
     
     public void increaseFontSize()
     {   ++fontsize;

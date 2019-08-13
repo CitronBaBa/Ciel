@@ -25,7 +25,7 @@ import javafx.beans.value.*;
     or when you specifically tells it to
     not when it is added to its parent in fxml
 */
-public class UniverseWindow extends Application implements Initializable
+public class UniverseWindow extends Application implements Initializable,CielEventSubscriber
 {   private GlobalSatellite globals;
     //fxml
     public Pane cielArea;
@@ -46,6 +46,21 @@ public class UniverseWindow extends Application implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {   ;
     }
+    public void reactOnEvent(CielEvent event)
+    {   
+        /* dynamic textRealm display, currently not used*/
+        // if(event == CielEvent.ChangeFocus)
+        // {   if(cielControl.getSelectedStar()==null)
+        //     splitView.getItems().remove(textRealm.getRealm());
+        //     else if(!splitView.getItems().contains(textRealm.getRealm()))
+        //     {   splitView.getItems().add(textRealm.getRealm());
+        //         setUpDivder();
+        //     }
+        // }
+        // if(event == CielEvent.LoadNewModel)
+        // {   splitView.getItems().remove(textRealm.getRealm());
+        // }
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception
@@ -59,6 +74,7 @@ public class UniverseWindow extends Application implements Initializable
         scene.getStylesheets().add("style/javaKeyword.css");
         
         keyControl(scene);
+        HoustonCenter.subscribe(this);
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
     
@@ -75,7 +91,6 @@ public class UniverseWindow extends Application implements Initializable
         ciellayers.getChildren().addAll(cielScrolPane,controlAnchors);
 
         splitView = new SplitPane(ciellayers,textRealm.getRealm());
-        SplitPane.Divider divd = splitView.getDividers().get(0);
         root.setCenter(splitView);
         
 
@@ -86,12 +101,18 @@ public class UniverseWindow extends Application implements Initializable
 
         topMenu = new topMenuControl(cielControl);
         BorderPane.setAlignment(topMenu.getPanel(),Pos.CENTER_RIGHT);
-        divd.positionProperty().bindBidirectional(topMenu.getSlideValue());
         root.setTop(topMenu.getPanel());
 
+        setUpDivder();
         dynamicSizing();
         primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.show();
+    }
+
+    private void setUpDivder()
+    {   if(splitView.getDividers().size()==0) return;
+        SplitPane.Divider divd = splitView.getDividers().get(0);
+        divd.positionProperty().bindBidirectional(topMenu.getSlideValue());
     }
 
     private void dynamicSizing()
@@ -108,12 +129,17 @@ public class UniverseWindow extends Application implements Initializable
         KeyCode.Z, KeyCombination.CONTROL_DOWN);
         final KeyCombination keyCombinationShift2 = new KeyCodeCombination(
             KeyCode.Z, KeyCombination.CONTROL_DOWN,KeyCombination.SHIFT_DOWN);
+        final KeyCombination keyCombinationShift3 = new KeyCodeCombination(
+        KeyCode.S, KeyCombination.CONTROL_DOWN);
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
         public void handle(KeyEvent event)
         {   if(keyCombinationShift2.match(event))
             HoustonCenter.redoAction();
             if(keyCombinationShift1.match(event))
             HoustonCenter.undoAction();
+            if(keyCombinationShift3.match(event))
+            topMenu.initialSave();
         }});
     }
+
 }

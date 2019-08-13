@@ -63,8 +63,8 @@ public class topMenuControl
 
     private void sliderSettings()
     {   slider.setMax(0.8f);
-        slider.setMin(0.10f);
-        slider.setValue(0.55f);
+        slider.setMin(0.35f);
+        slider.setValue(0.7f);
     }
 
     public void initialSave()
@@ -80,6 +80,7 @@ public class topMenuControl
 
     private void saving(String path)
     {   if(path==null) return;
+        HoustonCenter.propagateEvent(CielEvent.SaveModel);
         FileSystem fileHandler = new FileSystem("");
         Ciel cielModel = globals.getCielModel();
         fileHandler.writeObjectTo(path,cielModel);
@@ -135,8 +136,8 @@ public class topMenuControl
 
     private void updateModel(Ciel cielModel)
     {   globals.setCielModel(cielModel);
-        cielControl.loadFromCielModel(cielModel);
         HoustonCenter.propagateEvent(CielEvent.LoadNewModel);
+        cielControl.loadFromCielModel(cielModel);
         HoustonCenter.clearActionList();
     }
 
