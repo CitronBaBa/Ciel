@@ -16,7 +16,7 @@
                <children>
                   <Group>
                      <children>
-                        <Pane fx:id="cielArea" cacheHint="QUALITY" prefHeight="1000.0" prefWidth="2000.0" />
+                        <Pane fx:id="cielArea" cacheHint="QUALITY" prefHeight="1500.0" prefWidth="2000.0" />
                      </children>
                   </Group>
                </children>

@@ -20,6 +20,7 @@ import javafx.scene.paint.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
 import javafx.application.Platform;
+import javafx.scene.transform.*;
 
 // "etoileview - primaryview - shape" hierarchy and childArea are essential
 // however their relations can be aribtrary
@@ -136,7 +137,6 @@ public class EtoileControl implements Initializable
     public EtoileControl giveADeepCopy()
     {   Etoile modelDeepCopy = monEtoile.giveADeepCopy();
         EtoileControl deepCopy = new EtoileControl_Rectangle(modelDeepCopy,etoileMap,alignMap,cielArea,cielModel,outerSetup);
-        deepCopy.setName("sudo");
         return deepCopy;
     }
 
@@ -530,19 +530,21 @@ public class EtoileControl implements Initializable
     // update the center point to model
     private void autoUpdatePostion()
     {   getMainShape().localToSceneTransformProperty().addListener((obs, oldT, newT) ->
-        {   
-            if(layoutY!=primaryView.getLayoutY() && !monEtoile.isSubStar())
-            {   updateStarPos(monEtoile.getCoordination());
-                layoutY = primaryView.getLayoutY();
-                return;
-            }
-            Point2D originalPosInScene = newT.transform(giveCenterPoint());
-            Bounds cielBound = cielArea.localToScene(cielArea.getBoundsInLocal());
-            double cielX = originalPosInScene.getX() - cielBound.getMinX();
-            double cielY = originalPosInScene.getY() - cielBound.getMinY();
-            Coordination newCoor = new Coordination(cielX,cielY);
-            updateModelCoor(newCoor);
+        {   selfUpdatePos(newT);
         });
+    }
+    private void selfUpdatePos(Transform newT)
+    {   if(layoutY!=primaryView.getLayoutY() && !monEtoile.isSubStar())
+        {   updateStarPos(monEtoile.getCoordination());
+            layoutY = primaryView.getLayoutY();
+            return;
+        }
+        Point2D originalPosInScene = newT.transform(giveCenterPoint());
+        Bounds cielBound = cielArea.localToScene(cielArea.getBoundsInLocal());
+        double cielX = originalPosInScene.getX() - cielBound.getMinX();
+        double cielY = originalPosInScene.getY() - cielBound.getMinY();
+        Coordination newCoor = new Coordination(cielX,cielY);
+        updateModelCoor(newCoor);
     }
     private void updateModelCoor(Coordination newPos)
     {   Coordination viewPos = giveAdjustedCoordination(newPos);
@@ -615,6 +617,7 @@ public class EtoileControl implements Initializable
         nameField.setVisible(false);
         name.setVisible(true);
         HoustonCenter.recordAction(new ChangeNameAction(oldName,nameField.getText(),this));
+        selfUpdatePos(getMainShape().getLocalToSceneTransform());
     }
     public void setName(String name)
     {   nameField.setText(name);

@@ -18,12 +18,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
 //holding global value
-public class GlobalSatellite
+public class GlobalSatellite 
 {   private static GlobalSatellite satellite;
 
     //globals
     private Stage mainStage;
     private Ciel cielModel; 
+    private String filePath = null;
+    public void setFilePath(String path){ this.filePath = path;}
+    public String getFilePath() { return filePath;}
+
     private Map<Etoile,EtoileControl> globalStarReferences = new HashMap<>();
     public static void putStarReference(Etoile e, EtoileControl eC)
     {   getSatellite().globalStarReferences.put(e,eC);
@@ -34,8 +38,6 @@ public class GlobalSatellite
     public static EtoileControl getStarControl(Etoile e)
     {   return getSatellite().globalStarReferences.get(e);
     }
-
-
 
     private GlobalSatellite()
     {   cielModel = new Ciel();

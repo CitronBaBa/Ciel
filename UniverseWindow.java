@@ -55,26 +55,38 @@ public class UniverseWindow extends Application implements Initializable
 
         Scene scene = new Scene(view, 1100, 800);
         scene.getStylesheets().add("style/style.css");
+        scene.getStylesheets().add("style/cielStyle.css");
         scene.getStylesheets().add("style/javaKeyword.css");
         
         keyControl(scene);
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
+    
         globals = GlobalSatellite.getSatellite();
         globals.setStage(primaryStage);
 
         cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
-
+    
         textRealm = new TextRealm(cielControl);
 
-        splitView = new SplitPane(cielScrolPane,textRealm.getRealm());
+        StackPane ciellayers = new StackPane();
+        AnchorPane controlAnchors = new AnchorPane();
+        controlAnchors.setPickOnBounds(false);
+        ciellayers.getChildren().addAll(cielScrolPane,controlAnchors);
+
+        splitView = new SplitPane(ciellayers,textRealm.getRealm());
+        SplitPane.Divider divd = splitView.getDividers().get(0);
         root.setCenter(splitView);
+        
 
         stylePanel = new StylePanel(cielControl);
-        root.setBottom(stylePanel.getPanel());
+        AnchorPane.setBottomAnchor(stylePanel.getPanel(),0d);
+        AnchorPane.setLeftAnchor(stylePanel.getPanel(),0d);
+        controlAnchors.getChildren().add(stylePanel.getPanel());
 
         topMenu = new topMenuControl(cielControl);
         BorderPane.setAlignment(topMenu.getPanel(),Pos.CENTER_RIGHT);
+        divd.positionProperty().bindBidirectional(topMenu.getSlideValue());
         root.setTop(topMenu.getPanel());
 
         dynamicSizing();

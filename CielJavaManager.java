@@ -48,7 +48,9 @@ public class CielJavaManager implements Serializable
     {   this.debugging = debugging;
     }
 
-
+    public int getLoadedClassesCount()
+    {   return classes.size();
+    }
     public Map<String,double[]> getInterfaces()
     {   return interfaces;
     }

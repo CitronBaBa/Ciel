@@ -21,6 +21,7 @@ public class StylePanel implements CielEventSubscriber
 {   private CielControl cielControl;
     private GlobalSatellite globals;
     private TabPane bottomTabs = new TabPane();
+    private Tab interfaceTab;
 
     private HBox bottomBox = new HBox();
     private GridPane colorGird = new GridPane();
@@ -56,16 +57,25 @@ public class StylePanel implements CielEventSubscriber
         bottomBox.setId("bottom_color_box");
         colorPicker.getStyleClass().add("button");
         Tab colorTab = new Tab("Color",bottomBox);
-        Tab interfaceTab = new Tab("interfaces",interfaceGrid);
+        interfaceTab = new Tab("interfaces",interfaceGrid);
         colorTab.setClosable(false);
         interfaceTab.setClosable(false);
         bottomTabs.getTabs().addAll(colorTab,interfaceTab);
+        updateInterfacePanel();
     }
 
     private void updateInterfacePanel()
     {   interfaceGrid.getChildren().clear();
+        x1 = 0; y1 = 0;
         //Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
         Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
+        if(globals.getCielModel().getJavaManager().getLoadedClassesCount()==0)
+        {   bottomTabs.getTabs().remove(interfaceTab); 
+            return;
+        }
+        else if(!bottomTabs.getTabs().contains(interfaceTab))
+        {   bottomTabs.getTabs().add(interfaceTab);
+        }
         for(Map.Entry<String,double[]> pair: interfaces.entrySet())
         {   String interfaceName = pair.getKey();
             double[] colorFigures = pair.getValue();

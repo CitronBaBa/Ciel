@@ -20,6 +20,7 @@ import javafx.scene.effect.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 
 public class topMenuControl
 {   private CielControl cielControl;
@@ -27,6 +28,7 @@ public class topMenuControl
     //fxml
     public Node menuPanel;
     public MenuItem save;
+    public MenuItem saveAs;
     public MenuItem read;
     public MenuItem readJava;
     public MenuItem remove;
@@ -36,7 +38,7 @@ public class topMenuControl
     public Node getPanel()
     {   return menuPanel;
     }
-    public ObservableDoubleValue getSlideValue()
+    public DoubleProperty getSlideValue()
     {   return slider.valueProperty();
     }
 
@@ -47,10 +49,12 @@ public class topMenuControl
         this.cielControl = cielControl;
         this.globals = GlobalSatellite.getSatellite();
         initialization();
+        menuPanel.setId("top-menu");
     }
 
     private void initialization()
-    {   save.setOnAction(e->saving());
+    {   save.setOnAction(e->initialSave());
+        saveAs.setOnAction(e->savingAs());
         read.setOnAction(e->reading());
         remove.setOnAction(e->removing());
         readJava.setOnAction(e->readingjava());
@@ -59,17 +63,28 @@ public class topMenuControl
 
     private void sliderSettings()
     {   slider.setMax(0.8f);
-        slider.setMin(0.15f);
+        slider.setMin(0.10f);
         slider.setValue(0.55f);
     }
 
-    private void saving()
-    {   Ciel cielModel = globals.getCielModel();
-        String path = askSaveFileName();
-        if(path==null) return;
+    public void initialSave()
+    {   if(globals.getFilePath()==null) savingAs();
+        else saving(globals.getFilePath());
+    }
+
+    private void savingAs()
+    {   String path = askSaveFileName();
+        saving(path);
+        globals.setFilePath(path);
+    }
+
+    private void saving(String path)
+    {   if(path==null) return;
         FileSystem fileHandler = new FileSystem("");
+        Ciel cielModel = globals.getCielModel();
         fileHandler.writeObjectTo(path,cielModel);
     }
+
     private String askSaveFileName()
     {   FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File("./data/"));
@@ -85,6 +100,7 @@ public class topMenuControl
         FileSystem fileHandler = new FileSystem("");
         Ciel cielModel = (Ciel) fileHandler.readObjectFrom(path);
         updateModel(cielModel);
+        globals.setFilePath(path);
     }
     private String askReadFileName()
     {   FileChooser fileChooser = new FileChooser();
@@ -119,9 +135,9 @@ public class topMenuControl
 
     private void updateModel(Ciel cielModel)
     {   globals.setCielModel(cielModel);
+        cielControl.loadFromCielModel(cielModel);
         HoustonCenter.propagateEvent(CielEvent.LoadNewModel);
         HoustonCenter.clearActionList();
-        cielControl.loadFromCielModel(cielModel);
     }
 
 

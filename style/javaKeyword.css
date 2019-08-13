@@ -1,3 +1,7 @@
+.code-area{
+     -fx-font-size: 15px;
+}
+
 .keyword {
     -fx-fill: purple;
     -fx-font-weight: bold;

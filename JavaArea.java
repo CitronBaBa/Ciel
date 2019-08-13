@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.Parent;
 import javafx.scene.input.*;
 import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import javafx.scene.shape.*;
@@ -41,8 +42,18 @@ import com.github.javaparser.resolution.types.*;
 import com.github.javaparser.ast.expr.*;
 
 public class JavaArea
-{   private Region javaArea;
+{   private StackPane javaArea;
     private CodeArea codeArea;
+    private int fontsize = 15;
+    
+    public void increaseFontSize()
+    {   ++fontsize;
+        codeArea.setStyle("-fx-font-size:"+fontsize+"px");
+    }
+    public void decreaseFontSize()
+    {   --fontsize;
+        codeArea.setStyle("-fx-font-size:"+fontsize+"px");
+    }
 
     public Region getArea()
     {   return javaArea;
@@ -60,7 +71,7 @@ public class JavaArea
 
     public JavaArea()
     {   codeArea = new CodeArea();
-
+        
         // add line numbers to the left of area
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
@@ -84,20 +95,26 @@ public class JavaArea
         codeArea.replaceText(0, 0, sampleCode);
         
         javaArea = new StackPane(new VirtualizedScrollPane<>(codeArea));
+        buttonSetUp();
+    }
+    
+    private void buttonSetUp()
+    {   Button btn = new Button("+");
+        Button btn2 = new Button("-");
+        btn.setOnAction(e->increaseFontSize());
+        btn2.setOnAction(e->decreaseFontSize());
+        AnchorPane anchorPane = new AnchorPane();
+        btn2.widthProperty().addListener((obs,oldV,newV)->
+        {   AnchorPane.setRightAnchor(btn,18+btn2.getWidth()+3);  
+        });
+        AnchorPane.setBottomAnchor(btn,25d);
+        AnchorPane.setRightAnchor(btn2,18d);
+        AnchorPane.setBottomAnchor(btn2,25d);
+        anchorPane.getChildren().addAll(btn,btn2);
+        anchorPane.setPickOnBounds(false);
+        javaArea.getChildren().add(anchorPane);
     }
 
-        // CompilationUnit compilationUnit = StaticJavaParser.parse(codeArea.getText());
-        // List<ClassOrInterfaceType> classes = compilationUnit.findAll(ClassOrInterfaceType.class);
-        // for(ClassOrInterfaceType c : classes)
-        // {   System.out.println(c); 
-        //     // for(MethodDeclaration m: c.findAll(MethodDeclaration.class))
-        //     // {   System.out.println(m.getModifiers());
-        //     // }
-        // }
-
-        // List<BodyDeclaration> compilationUnit.findAll(BodyDeclaration.class).size();
-        // System.out.println(a);
-        // printChildren(compilationUnit);
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);

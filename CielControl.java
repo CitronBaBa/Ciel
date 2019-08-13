@@ -165,7 +165,8 @@ public class CielControl
 
 //background must be the first element of cielarea
     private void backgroundSetUp()
-    {   Rectangle background = new Rectangle(1300,900,Color.WHITE);
+    {   Rectangle background = new Rectangle(13,9,Color.rgb(252,244,246));
+        background.setId("ciel-background");
         background.widthProperty().bind(cielArea.widthProperty());
         background.heightProperty().bind(cielArea.heightProperty());
         backgroundMouseSetUp(background);

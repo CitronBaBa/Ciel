@@ -4,8 +4,10 @@
 .root{
     -fx-background-color: rgb(249,245,244);
 }
-
-.menu-bar { -fx-background-color: rgb(249,245,244); }
+#top-menu{
+     -fx-background-color: white;
+}
+.menu-bar { -fx-background-color: white; }
 .menu { /* The File menu item */
    /* -fx-background-color: rgb(111,245,244); */
  }
@@ -75,7 +77,7 @@
    -fx-alignment: center-left;
    -fx-spacing: 0;
    -fx-fill-height: true;
-   /* -fx-background-color: rgb(255,165,144); */
+    fx-background-color: rgb(249,245,244);
 }
 
 #curve {
