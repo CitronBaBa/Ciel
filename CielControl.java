@@ -26,14 +26,18 @@ public class CielControl
 
 
     private double zoomIntensity = 0.002;
+    private double maxScale = 5;
+    private double minScale = 0.2;
+
     private EtoileControl selectedEtoile;
     public EtoileControl getSelectedStar() {   return selectedEtoile;}
+    public Pane getCielArea() {   return cielArea;}
 
     private GlobalSatellite globals;
     private Ciel cielModel;
     private CielRobot robot;
     public CielRobot getRobot() {   return robot;}
-
+    
 // mapping between model object and graph object
 // used to quickly find controller
     private Map<Etoile,EtoileControl> etoileControls = new HashMap<>();
@@ -144,8 +148,9 @@ public class CielControl
         double valY = cielScrolPane.getVvalue() * (innerBounds.getHeight() - viewportBounds.getHeight());
 
         double scaleValue = cielModel.getScaleProperty().get();
-        scaleValue = scaleValue * zoomFactor;
-        cielModel.getScaleProperty().set(scaleValue);
+        double newScaleValue = scaleValue * zoomFactor;
+        if(newScaleValue>maxScale || newScaleValue<minScale) newScaleValue = scaleValue;
+        cielModel.getScaleProperty().set(newScaleValue);
         //updateScale();
         cielScrolPane.layout(); // refresh ScrollPane scroll positions & target bounds
 
@@ -524,6 +529,9 @@ public class CielControl
         discardAlignOperation();
         cielArea.getChildren().remove(starPopUp);
         cielArea.getChildren().remove(backgroundPopUp);
+        for(AlignControl aC : alignControls.values())
+        {   aC.clearUp();
+        }
     }
 
     private void focuseEffect(Coordination newCoor)

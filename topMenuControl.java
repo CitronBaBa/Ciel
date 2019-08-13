@@ -17,10 +17,14 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.effect.*;
+import javafx.scene.image.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javafx.embed.swing.SwingFXUtils;
 
 public class topMenuControl
 {   private CielControl cielControl;
@@ -29,9 +33,11 @@ public class topMenuControl
     public Node menuPanel;
     public MenuItem save;
     public MenuItem saveAs;
+    public MenuItem saveAsPhoto;
     public MenuItem read;
     public MenuItem readJava;
     public MenuItem remove;
+    public MenuItem arrange;
 
     public Slider slider;
 
@@ -58,6 +64,8 @@ public class topMenuControl
         read.setOnAction(e->reading());
         remove.setOnAction(e->removing());
         readJava.setOnAction(e->readingjava());
+        arrange.setOnAction(e->cielControl.getRobot().arrangeAllStars());
+        saveAsPhoto.setOnAction(e->savingPhoto());
         sliderSettings();
     }
 
@@ -73,23 +81,25 @@ public class topMenuControl
     }
 
     private void savingAs()
-    {   String path = askSaveFileName();
+    {   String path = askSaveFileName("./data/","Ciel File","*.data");
+        if(path==null) return;
         saving(path);
         globals.setFilePath(path);
     }
 
     private void saving(String path)
     {   if(path==null) return;
+        if(!path.endsWith(".data")) path = path + ".data";
         HoustonCenter.propagateEvent(CielEvent.SaveModel);
         FileSystem fileHandler = new FileSystem("");
         Ciel cielModel = globals.getCielModel();
         fileHandler.writeObjectTo(path,cielModel);
     }
 
-    private String askSaveFileName()
+    private String askSaveFileName(String defaultDir,String name, String extension)
     {   FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("./data/"));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Ciel File", "*.data"));
+        fileChooser.setInitialDirectory(new File(defaultDir));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(name, extension));
         File selectedFile = fileChooser.showSaveDialog(globals.getStage());
         if(selectedFile==null) return null;
         return selectedFile.getPath();
@@ -141,9 +151,33 @@ public class topMenuControl
         HoustonCenter.clearActionList();
     }
 
-
     private void removing()
     {   cielControl.removeSelected();
+    }
+    
+    private void savingPhoto()
+    {   File dir = new File ("./data/image/");
+        if(!dir.exists()) dir.mkdir();
+        String path = askSaveFileName("./data/image/","png file","*.png");
+        if(path==null) return;
+        if(!path.endsWith("png")) path +=".png";
+        final File outputFile = new File(path);
+
+        Node target = cielControl.getCielArea();
+        WritableImage wImage = null;//new WritableImage(600,800);
+        target.snapshot( (p)->
+        {   writePhotoFile(p.getImage(),outputFile);
+            return null;
+        }
+        ,new SnapshotParameters(),wImage);
+    }
+
+    private void writePhotoFile(Image image,File outputFile)
+    {   BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        try {   ImageIO.write(bImage, "png", outputFile);} 
+        catch (IOException e) 
+        {   throw new RuntimeException(e);
+        }
     }
 
 }

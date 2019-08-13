@@ -25,6 +25,7 @@ public class AlignControl
     private Ciel cielModel;
     private Polygon arrow;
     private Rotate rotate;
+    private Button btn;
 
     public AlignControl(Align align, Map<Align,AlignControl> alignControls, Pane cielArea, Ciel cielModel)
     {   this.align = align;
@@ -44,6 +45,7 @@ public class AlignControl
         Coordination to = align.getToStar().getCoordination();
 
         drawAlignCurve(from,to);
+        setMouseBehavior();
         cielArea.getChildren().add(1,curve);
         cielArea.getChildren().add(arrow);
         alignControls.put(align,this);
@@ -54,6 +56,32 @@ public class AlignControl
         alignControls.remove(align);
         cielModel.getAligns().remove(align);
     }
+
+    private void setMouseBehavior()
+    {   curve.setOnMouseClicked(e->mouseBehave(e));
+        arrow.setOnMouseClicked(e->mouseBehave(e));
+    }
+
+    private void mouseBehave(MouseEvent e)
+    {   clearUp();
+        if(e.getButton()!=MouseButton.SECONDARY) return;
+        btn = new Button("remove link");
+        Bounds cielBound = cielArea.localToScene(cielArea.getBoundsInLocal());
+        double cielX = e.getSceneX() - cielBound.getMinX();
+        double cielY = e.getSceneY() - cielBound.getMinY();
+        btn.relocate(cielX,cielY);
+        cielArea.getChildren().add(btn);
+        btn.setOnAction(btnE->
+        {   this.removeYourself();
+            cielArea.getChildren().remove(btn);
+        });
+        e.consume();
+    }
+
+    public void clearUp()
+    {   if(btn!=null) cielArea.getChildren().remove(btn);
+    }
+
 
     public void drawAlignCurve(Coordination from, Coordination to)
     {   curve = new Path();

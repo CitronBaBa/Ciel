@@ -12,6 +12,7 @@
             <items>
               <MenuItem fx:id="save" mnemonicParsing="false" text="Save" />
                   <MenuItem fx:id="saveAs" mnemonicParsing="false" text="SaveAs" />
+                  <MenuItem fx:id="saveAsPhoto" mnemonicParsing="false" text="SaveAsPhoto" />
                   <MenuItem fx:id="read" mnemonicParsing="false" text="Read" />
                   <MenuItem fx:id="readJava" mnemonicParsing="false" text="ReadJava" />
             </items>
@@ -19,6 +20,7 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem fx:id="remove" mnemonicParsing="false" text="Remove" />
+                  <MenuItem fx:id="arrange" mnemonicParsing="false" text="Arrange" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
