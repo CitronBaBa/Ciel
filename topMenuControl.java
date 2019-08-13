@@ -40,6 +40,11 @@ public class topMenuControl
     public MenuItem arrange;
 
     public Slider slider;
+    private void sliderSettings()
+    {   slider.setMax(0.8f);
+        slider.setMin(0.35f);
+        slider.setValue(0.7f);
+    }
 
     public Node getPanel()
     {   return menuPanel;
@@ -67,12 +72,6 @@ public class topMenuControl
         arrange.setOnAction(e->cielControl.getRobot().arrangeAllStars());
         saveAsPhoto.setOnAction(e->savingPhoto());
         sliderSettings();
-    }
-
-    private void sliderSettings()
-    {   slider.setMax(0.8f);
-        slider.setMin(0.35f);
-        slider.setValue(0.7f);
     }
 
     public void initialSave()
@@ -146,9 +145,9 @@ public class topMenuControl
 
     private void updateModel(Ciel cielModel)
     {   globals.setCielModel(cielModel);
+        HoustonCenter.clearActionList();
         HoustonCenter.propagateEvent(CielEvent.LoadNewModel);
         cielControl.loadFromCielModel(cielModel);
-        HoustonCenter.clearActionList();
     }
 
     private void removing()

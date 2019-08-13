@@ -209,7 +209,7 @@ public class CielControl
     private void addOneAlign(Align align)
     {   AlignControl newAlign = new AlignControl(align,alignControls,cielArea,cielModel);
         newAlign.addAndDrawYourself();
-        HoustonCenter.recordAction(new AlignAction(newAlign,false));
+        HoustonCenter.recordAction(new AlignControl.AlignAction(newAlign,false));
     }
 
     private EtoileControl drawOneStar(Etoile star)
@@ -605,29 +605,6 @@ public class CielControl
         public void redo()
         {   if(!inverse) target.addYourGroup();
             else target.removeYourGroup();
-        }
-    }
-
-   private static class AlignAction implements CielAction
-   {    private AlignControl target;
-        private final boolean inverse;
-        public AlignAction(AlignControl target, boolean inverse)
-        {   this.target = target;
-            this.inverse = inverse;
-        }
-        public void undo()
-        {   if(!inverse) removeAlign();
-            else addAlign();
-        }
-        public void redo()
-        {   if(!inverse) addAlign();
-            else removeAlign();
-        }
-        private void removeAlign()
-        {   target.removeYourself();
-        }
-        private void addAlign()
-        {   target.addAndDrawYourself();
         }
     }
 

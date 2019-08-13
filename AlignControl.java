@@ -73,6 +73,7 @@ public class AlignControl
         cielArea.getChildren().add(btn);
         btn.setOnAction(btnE->
         {   this.removeYourself();
+            HoustonCenter.recordAction(new AlignAction(this,true));
             cielArea.getChildren().remove(btn);
         });
         e.consume();
@@ -178,6 +179,29 @@ public class AlignControl
         curveLine.setControlX(50);
         curveLine.setControlX(50);
         curveLine.setId("curve");
+    }
+
+   public static class AlignAction implements CielAction
+   {    private AlignControl target;
+        private final boolean inverse;
+        public AlignAction(AlignControl target, boolean inverse)
+        {   this.target = target;
+            this.inverse = inverse;
+        }
+        public void undo()
+        {   if(!inverse) removeAlign();
+            else addAlign();
+        }
+        public void redo()
+        {   if(!inverse) addAlign();
+            else removeAlign();
+        }
+        private void removeAlign()
+        {   target.removeYourself();
+        }
+        private void addAlign()
+        {   target.addAndDrawYourself();
+        }
     }
 
 
