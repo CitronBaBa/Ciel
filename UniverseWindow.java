@@ -47,7 +47,7 @@ public class UniverseWindow extends Application implements Initializable,CielEve
     {   ;
     }
     public void reactOnEvent(CielEvent event)
-    {   
+    {
         /* dynamic textRealm display, currently not used*/
         // if(event == CielEvent.ChangeFocus)
         // {   if(cielControl.getSelectedStar()==null)
@@ -72,17 +72,17 @@ public class UniverseWindow extends Application implements Initializable,CielEve
         scene.getStylesheets().add("style/style.css");
         scene.getStylesheets().add("style/cielStyle.css");
         scene.getStylesheets().add("style/javaKeyword.css");
-        
+
         keyControl(scene);
         HoustonCenter.subscribe(this);
         primaryStage.setTitle("Ciel");
         primaryStage.setScene(scene);
-    
+
         globals = GlobalSatellite.getSatellite();
         globals.setStage(primaryStage);
 
         cielControl = new CielControl(cielArea, cielBox, cielScrolPane);
-    
+
         textRealm = new TextRealm(cielControl);
 
         StackPane ciellayers = new StackPane();
@@ -92,7 +92,7 @@ public class UniverseWindow extends Application implements Initializable,CielEve
 
         splitView = new SplitPane(ciellayers,textRealm.getRealm());
         root.setCenter(splitView);
-        
+
 
         stylePanel = new StylePanel(cielControl);
         AnchorPane.setBottomAnchor(stylePanel.getPanel(),0d);
@@ -140,6 +140,19 @@ public class UniverseWindow extends Application implements Initializable,CielEve
             if(keyCombinationShift3.match(event))
             topMenu.initialSave();
         }});
+
+        cielScrolPane.addEventFilter(KeyEvent.KEY_PRESSED,e->{
+            EtoileControl target = cielControl.getSelectedStar();
+            if(target==null) return;
+            if(e.getCode()==KeyCode.UP)
+            {   target.shiftInChildren(true);
+                e.consume();
+            }
+            if(e.getCode()==KeyCode.DOWN)
+            {   target.shiftInChildren(false);
+                e.consume();
+            }
+        });
     }
 
 }

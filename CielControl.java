@@ -332,17 +332,24 @@ public class CielControl
         controller.getPrimaryView().setOnMouseDragged(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
-        {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+        {   if(controller.getEtoile().isSubStar() && sudoStarWrapper.get()==null)
+            {   event.consume();
+                return;
+            }
+            Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
             EtoileControl target = controller;
 
             if(sudoStarWrapper.get()!=null) target = sudoStarWrapper.get();
 
-            //if(lastPosWrapper.get()==null) lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
+            if(lastPosWrapper.get()==null) lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
             Point2D newPoint = new Point2D(newCoor.getX(),newCoor.getY());
             Point2D oldPoint = lastPosWrapper.get();
             Point2D adjust = newPoint.subtract(oldPoint);
             lastPosWrapper.setValue(newPoint);
-            target.updateStarPosRelatively(new Coordination(adjust.getX(),adjust.getY()));
+
+            if(sudoStarWrapper.get()!=null) target.updateStarPos(newCoor);
+            else target.updateStarPosRelatively(new Coordination(adjust.getX(),adjust.getY()));
+
             //flying over something
             robot.highlightHoveredStar(target);
             event.consume();
@@ -358,7 +365,7 @@ public class CielControl
             oldCoor.setY(controller.getEtoile().getCoordination().getY());
 
             Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
-            lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
+            if(!controller.getEtoile().isSubStar()) lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
 
             if(!controller.getEtoile().isSubStar()) controller.shuffleToTheTop();
             //System.out.println("star:"+controller.getEtoile().getName()+" pressed");
@@ -377,12 +384,13 @@ public class CielControl
 
                     EtoileControl sudoStar = controller.giveADeepCopy();
                     controller.hideStarRecursively();
-                    Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+                    final Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+
                     lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
                     sudoStar.updateStarPos(newCoor);
                     sudoStarWrapper.set(sudoStar);
                 }
-                System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
+                //System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
                 event.consume();
             }
         });
@@ -427,7 +435,7 @@ public class CielControl
                 oriStarWrapper.setValue(null);
                 lastPosWrapper.setValue(null);
                 //cachedEtoile = null;
-                System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
+                //System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
                 event.consume();
             }
         });
@@ -508,7 +516,15 @@ public class CielControl
         starPopUp.getChildren().add(addChild);
         Button removing = new Button("remove");
         removing.setOnAction(e->removeOperation(etoileController));
-        starPopUp.getChildren().add(removing);
+
+        Button shiftUp = new Button("up");
+        shiftUp.setOnAction(e->etoileController.shiftInChildren(true));
+        Button shiftDown = new Button("down");
+        HBox upDown = new HBox(0);
+        upDown.getChildren().addAll(shiftUp,shiftDown);
+        shiftDown.setOnAction(e->etoileController.shiftInChildren(false));
+
+        starPopUp.getChildren().addAll(upDown,removing);
     }
     private void linkingOperation(EtoileControl etoileController)
     {   Coordination from = etoileController.getCoordination();

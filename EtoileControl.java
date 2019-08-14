@@ -28,8 +28,8 @@ import javafx.scene.transform.*;
 
 
 /**** global star reference needs to be cleared when etoile is definitely
-removed for memory relieving***/
-/* currently this is not adressed*/
+removed for memory relieving ***/
+/* currently this is not adressed */
 
 // when inherited, all protected methods need to be override or checked
 public class EtoileControl implements Initializable
@@ -276,11 +276,25 @@ public class EtoileControl implements Initializable
 
         addChild(childStar);
 
-        //adjust to target position
+        // adjust to target position
         childArea.getChildren().remove(childStar.getView());
         childArea.getChildren().add(targetPos,childStar.getView());
+        // update model
         monEtoile.getChildren().remove(childStar.getEtoile());
         monEtoile.getChildren().add(targetPos,childStar.getEtoile());
+    }
+
+    public void shiftInChildren(boolean isMovingUp)
+    {   if(!monEtoile.isSubStar()) return;
+        List<Etoile> childrenList = monEtoile.getParent().getChildren();
+        int oldPos = childrenList.indexOf(monEtoile);
+        if(!isMovingUp && oldPos==childrenList.size()-1) return;
+        if(isMovingUp && oldPos==0) return;
+
+        EtoileControl parentControl = etoileMap.get(monEtoile.getParent());
+        this.becomeFreeStar();
+        if(isMovingUp) parentControl.insertChild(this,oldPos-1);
+        else parentControl.insertChild(this,oldPos+1);
     }
 
     public void hideStarRecursively()

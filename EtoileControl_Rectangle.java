@@ -47,12 +47,19 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
         rec.heightProperty().bind(name.heightProperty().multiply(1.2f));
     }
 
-/// initally the width value is 0
-//  thanks to the bloody Javafx
+/// initally the width value is 0, this is a nasty fix
+//  this also causee problems in dragging event, when a sudo star in instantiated,
+//  and when platform runlater is not possible to use
+
+//  all thanks to the bloody Javafx
+
     @Override
     protected Point2D giveCenterPoint() //local coordinate system
-    {   if(rec.getWidth()==0) return new Point2D(20,10);
+    {   //primaryView.layout();
+        //System.out.println(rec.getWidth());
+        if(rec.getWidth()==0) return new Point2D(20,10);
         return new Point2D(rec.getWidth()/2,rec.getHeight()/2);
+
     }
     protected Node getMainShape() { return rec;}
     public void setShapeColor(Paint color)
