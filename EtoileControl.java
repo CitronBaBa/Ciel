@@ -504,6 +504,11 @@ public class EtoileControl implements Initializable
     public void updateStarPos(Coordination newCoor)
     {   locateWithAdjustment(newCoor);
     }
+    public void updateStarPosRelatively(Coordination adjust)
+    {   double x = etoileView.getLayoutX() + adjust.getX();
+        double y = etoileView.getLayoutY() + adjust.getY();
+        locateDirectly(new Coordination(x,y));
+    }
 
     public void shuffleToTheTop()
     {   if(monEtoile.isSubStar()) throw new RuntimeException("you are shuffling a sub star, which is illegal");

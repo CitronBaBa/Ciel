@@ -37,7 +37,7 @@ public class CielControl
     private Ciel cielModel;
     private CielRobot robot;
     public CielRobot getRobot() {   return robot;}
-    
+
 // mapping between model object and graph object
 // used to quickly find controller
     private Map<Etoile,EtoileControl> etoileControls = new HashMap<>();
@@ -61,7 +61,7 @@ public class CielControl
         this.cielArea = cielArea;
         this.cielBox = cielBox;
         this.cielScrolPane = cielScrolPane;
-        this.robot = new CielRobot(etoileControls,cielScrolPane);
+        this.robot = new CielRobot(etoileControls,cielScrolPane,cielArea);
         initialization();
     }
 
@@ -120,7 +120,40 @@ public class CielControl
     }
 
     private void scrollAndZoomSetUp()
-    {   cielBox.setOnScroll(e ->
+    {
+       // start at the center
+        Bounds viewB = cielScrolPane.getViewportBounds();
+        double targetX = cielArea.getPrefWidth()/2-viewB.getWidth()/2;
+        double targetY = cielArea.getPrefHeight()/2-viewB.getHeight()/2;
+
+        double Hpercentage = targetX/(cielArea.getPrefWidth()-viewB.getWidth());
+        double Vpercentage = targetY/(cielArea.getPrefHeight()-viewB.getHeight());
+
+        cielScrolPane.setHvalue(Hpercentage);
+        cielScrolPane.setVvalue(Vpercentage);
+ // double currentY = (cielArea.getPrefHeight()-viewB.getHeight())*cielScrolPane.getVvalue();
+
+/* the listener here aims to anchor the mind map's visual position
+ when the size of the viewport of the scrolpane is changed
+ (as Hvalue/Vvalue isn't changed, without this adjustment the content will shift)
+ some little math is done here
+ */
+        cielScrolPane.widthProperty().addListener((obs,oldV,newV)->
+        {   //scrolw is the width of the viewport
+            double scrolW = (double)oldV - cielScrolPane.getPadding().getRight()- cielScrolPane.getPadding().getLeft();
+            double scrolW1 = (double)newV - cielScrolPane.getPadding().getRight()- cielScrolPane.getPadding().getLeft();
+            double newHvalue = (cielArea.getPrefWidth()-scrolW)/(cielArea.getPrefWidth()-scrolW1) * cielScrolPane.getHvalue();
+            cielScrolPane.setHvalue(newHvalue);
+        });
+        cielScrolPane.heightProperty().addListener((obs,oldV,newV)->
+        {   double scrolH = (double)oldV - cielScrolPane.getPadding().getTop() - cielScrolPane.getPadding().getBottom();
+            double scrolH1 = (double)newV - cielScrolPane.getPadding().getTop()-cielScrolPane.getPadding().getBottom();
+            double newVvalue = (cielArea.getPrefHeight()-scrolH)/(cielArea.getPrefHeight()-scrolH1) * cielScrolPane.getVvalue();
+            cielScrolPane.setVvalue(newVvalue);
+        });
+
+        System.out.println(cielScrolPane.getVvalue()+"--y,"+cielScrolPane.getHvalue()+"--x");
+        cielBox.setOnScroll(e ->
         {   e.consume();
             onScroll(e.getDeltaY(), new Point2D(e.getX(), e.getY()));
         });
@@ -152,7 +185,7 @@ public class CielControl
         if(newScaleValue>maxScale || newScaleValue<minScale) newScaleValue = scaleValue;
         cielModel.getScaleProperty().set(newScaleValue);
         //updateScale();
-        cielScrolPane.layout(); // refresh ScrollPane scroll positions & target bounds
+        //cielScrolPane.layout(); // refresh ScrollPane scroll positions & target bounds
 
         // convert target coordinates to zoomTarget coordinates
         Point2D posInZoomTarget = cielArea.parentToLocal(zoomNode.parentToLocal(mousePoint));
@@ -227,18 +260,18 @@ public class CielControl
 
 
     // private EtoileControl cachedEtoile = null;
-    
+
     private void dragAssistance()
-    {   
+    {
 //cielScrolPane.setPannable(false);
         // cielScrolPane.setOnDragDetected(new EventHandler<MouseEvent>()
         // {   public void handle(MouseEvent event)
         //     {   System.out.println("background drag detected");
         //         if(cachedEtoile!=null)
-        //          {   
+        //          {
         //              cachedEtoile.getPrimaryView().fireEvent(event);
         //              System.out.println("background drag transfered");
-        // 
+        //
         //          }
         //     }
         // });
@@ -252,31 +285,28 @@ public class CielControl
     //             }
     //         }
     //     });
-    // 
+    //
     }
 
 // child star should not be dragged
 // and ideally have a different mouse behavior
 
 // shuffling sub star (to pane) at the begining of drag will
-// cause mouse_drag not delivered to the sub star 
+// cause mouse_drag not delivered to the sub star
 // currently shuffling in pressed event;
 
 
-    private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>(); 
+    private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> sudoStarWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> oriStarWrapper = new SimpleObjectProperty<>();
+    private final Coordination lastCoor = new Coordination(0,0);
     private void starMouseSetUp(EtoileControl controller)
     {   final Coordination oldCoor = new Coordination(0,0);
 
         controller.getPrimaryView().setOnMouseDragged(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event)
-        {   if(event.isDragDetect())
-            {       
-            }
-
-            Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+        {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
             EtoileControl target = controller;
             if(sudoStarWrapper.get()!=null) target = sudoStarWrapper.get();
 
@@ -302,7 +332,7 @@ public class CielControl
 
         controller.getPrimaryView().setOnDragDetected(new EventHandler<MouseEvent>()
         {   public void handle(MouseEvent event)
-            {   controller.getPrimaryView().startFullDrag();   
+            {   controller.getPrimaryView().startFullDrag();
                 if(controller.getEtoile().isSubStar())
                 {   EtoileControl oldParent = etoileControls.get(controller.getEtoile().getParent());
                     if(oldParent==null) System.out.println("no parent is found");
@@ -314,8 +344,8 @@ public class CielControl
                     Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                     sudoStar.updateStarPos(newCoor);
                     sudoStarWrapper.set(sudoStar);
-                }             
-                System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
+                }
+                //System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
                 event.consume();
             }
         });
@@ -333,10 +363,10 @@ public class CielControl
                 if(controller.getEtoile().isSubStar()) return;
                 Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
                 Coordination oriCoor = new Coordination(oldCoor.getX(),oldCoor.getY());
-                
+
                 EtoileControl target = controller;
-                if(oriStarWrapper.get()!=null) target = oriStarWrapper.get(); 
-                
+                if(oriStarWrapper.get()!=null) target = oriStarWrapper.get();
+
 
                 boolean isMerged = robot.stopFlyingAndTryMerge(target,oldParentWrapper.get(),sudoStarWrapper.get(),oriCoor);
                 if(!isMerged)
@@ -350,7 +380,7 @@ public class CielControl
                     }
                     HoustonCenter.recordAction(new MovingAction(oriCoor,newCoor,target,oldParentWrapper.get(),index));
                 }
-                else if(sudoStarWrapper.get()!=null) 
+                else if(sudoStarWrapper.get()!=null)
                 {   oriStarWrapper.get().getView().setVisible(true);
                     sudoStarWrapper.get().removeYourGroup();
                 }
@@ -358,10 +388,9 @@ public class CielControl
                 sudoStarWrapper.setValue(null);
                 oldParentWrapper.setValue(null);
                 oriStarWrapper.setValue(null);
-    
-                System.out.println(etoileControls.values().size()+" : total star on record");
+
                 //cachedEtoile = null;
-                System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
+                //System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
                 event.consume();
             }
         });
@@ -525,7 +554,7 @@ public class CielControl
         clearAnyEffect();
     }
     private void clearAnyEffect()
-    {   restoreAllColors();  
+    {   restoreAllColors();
         discardAlignOperation();
         cielArea.getChildren().remove(starPopUp);
         cielArea.getChildren().remove(backgroundPopUp);
@@ -634,7 +663,7 @@ public class CielControl
             {       oldParent.insertChild(controller,index);
                     //System.out.println("abnormal undo");
             }
-            
+
         }
         public void redo()
         {   if(oldParent==null) controller.updateStarPos(newCoor);

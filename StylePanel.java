@@ -52,9 +52,10 @@ public class StylePanel implements CielEventSubscriber
     {   ColorPicker colorPicker = new ColorPicker();
         colorPicker.setOnAction(e->chooseColor(colorPicker.getValue()));
         createColorGird();
-        colorPicker.prefHeightProperty().bind(bottomBox.heightProperty());
+        colorPicker.setPrefHeight(recHeight);
         bottomBox.getChildren().addAll(colorGird,colorPicker);
         bottomBox.setId("bottom_color_box");
+        bottomBox.setAlignment(Pos.TOP_LEFT);
         colorPicker.getStyleClass().add("button");
         Tab colorTab = new Tab("Color",bottomBox);
         interfaceTab = new Tab("interfaces",interfaceGrid);
@@ -93,9 +94,9 @@ public class StylePanel implements CielEventSubscriber
 
     private void placeOneInterfaceBox(Node node)
     {   GridPane.setConstraints(node,x++,y);
-        if(x>9)
-        {   x=0;
-        	y++;
+        if(x1>9)
+        {   x1=0;
+        	y1++;
         }
         interfaceGrid.getChildren().add(node);
     }

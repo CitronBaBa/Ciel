@@ -34,18 +34,6 @@
     -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */
 }
 
-
-.color-picker{
-   -fx-background-color: #faa499;
-   -fx-background-color: linear-gradient(to bottom right, reflect, #faa499 30%, #f7dd85 50%, #ffc55c 100%);
-   -fx-arc-height: 0;
-   -fx-arc-width: 0;
-}
-.color-picker .rectangle{
-   -fx-arc-height: 0;
-   -fx-arc-width: 0;
-}
-
 .tab-pane .tab-header-area .tab-header-background {
     -fx-background-color: transparent;
 }
@@ -73,11 +61,38 @@
     /* -fx-text-fill: #96b946; */
 }
 
+.button{
+   -fx-font-family: 'Arial', 'Helvetica', sans-serif;
+   -fx-background-color: rgb(190,240,240,0.8);
+   -fx-font-size: 15px;
+   -fx-font-weight: bold;
+   -fx-text-fill: rgb(111,166,244);
+}
+.button:hover{
+   -fx-background-color: rgb(255,222,222);
+   -fx-text-fill: rgb(255,155,155);
+   -fx-rotate: -9;
+}
+
+.color-picker{
+   -fx-background-color: #faa499;
+   -fx-background-color: linear-gradient(to bottom right, reflect, #faa499 30%, #f7dd85 50%, #ffc55c 100%);
+   -fx-arc-height: 0;
+   -fx-arc-width: 0;
+}
+.color-picker .button{
+   -fx-arc-height: 0;
+   -fx-arc-width: 0;
+}
+
 #bottom_color_box{
-   -fx-alignment: center-left;
+   -fx-alignment: top-left;
    -fx-spacing: 0;
    -fx-fill-height: true;
     fx-background-color: transparent;
+}
+#bottom_color_box :hover{
+    -fx-rotate: 0;
 }
 
 #curve {

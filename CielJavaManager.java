@@ -154,7 +154,7 @@ public class CielJavaManager implements Serializable
         for(ClassOrInterfaceType i: implementeds)
         {   String interfaceName = i.getName().toString();
             if(!interfaces.containsKey(interfaceName))
-            {   double[] color = {Math.random(),Math.random(),Math.random(),1.0f};
+            {   double[] color = {Math.random()*0.35+0.63,Math.random()*0.35+0.63,Math.random()*0.35+0.63,1.0f};
                 interfaces.put(interfaceName,color);
                 implementations.put(interfaceName,new ArrayList<Etoile>());
             }

@@ -20,11 +20,17 @@ import javafx.scene.effect.*;
 public class CielRobot
 {   private Map<Etoile,EtoileControl> etoileControls;
     private ScrollPane cielScrolPane;
+    private Pane cielArea;
     private EtoileControl oldHighlightedStar = null;
 
-    public CielRobot(Map<Etoile,EtoileControl> etoileControls, ScrollPane cielScrolPane)
+
+    private final double arrangeXOffset = 25;
+    private final double arrangeYOffset = 25;
+
+    public CielRobot(Map<Etoile,EtoileControl> etoileControls, ScrollPane cielScrolPane, Pane cielArea)
     {   this.etoileControls = etoileControls;
         this.cielScrolPane = cielScrolPane;
+        this.cielArea = cielArea;
     }
 
     public boolean stopFlyingAndTryMerge(EtoileControl main, EtoileControl oldParent,EtoileControl sudoE, Coordination oldCoor)
@@ -39,18 +45,18 @@ public class CielRobot
         if(oldHighlightedStar!=null)
         {   int oldIndex = 0; int index = 0;
             index = caculateInsertationPos(oldHighlightedStar,main);
-            if(oldParent!=null) 
+            if(oldParent!=null)
             {   oldIndex = oldParent.getEtoile().getChildren().indexOf(main.getEtoile());
                 index = caculateInsertationPos(oldHighlightedStar,sudoE);
             }
             if(main.getEtoile().isSubStar())
             {   main.showStarRecursively();
-                main.becomeFreeStar();            
+                main.becomeFreeStar();
             }
             oldHighlightedStar.insertChild(main,index);
             System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
             HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor,oldIndex,index));
-            return true;            
+            return true;
         }
         return false;
     }
@@ -63,7 +69,7 @@ public class CielRobot
             oldHighlightedStar = null;
             return;
         }
-        
+
         removeHighlight();
         oldHighlightedStar = e;
         e.addEffect();
@@ -83,7 +89,7 @@ public class CielRobot
             Bounds beneathBounds = getBoundsInScene(e.getPrimaryView());
             if(beneathBounds.intersects(flyingEtoileBound))
             {   // intersected surface divded by flying surface
-                double percent = caculateIntersectPercentage(beneathBounds,flyingEtoileBound); 
+                double percent = caculateIntersectPercentage(beneathBounds,flyingEtoileBound);
                 if(percent>maxOverlapPercentage)
                 {   maxOverlapPercentage = percent;
                     resultE = e;
@@ -125,20 +131,25 @@ public class CielRobot
         for(EtoileControl e : etoileControls.values())
         {   if(!e.getEtoile().isSubStar()) remainList.add(e);
         }
-        double finalHeight = arrange(remainList,0,false);
+        Bounds viewB = cielScrolPane.getViewportBounds();
+        double currentY = (cielArea.getPrefHeight()-viewB.getHeight())*cielScrolPane.getVvalue();
+        double finalHeight = arrange(remainList,currentY+arrangeYOffset,false);
         if(remainList.size()!=0) arrange(remainList,finalHeight,true);
     }
 
     private double arrange(List<EtoileControl> remainList, double startY, boolean extra)
-    {   double startX = 0;
+    {   Bounds viewB = cielScrolPane.getViewportBounds();
+        double startX = (cielArea.getPrefWidth()-viewB.getWidth())*cielScrolPane.getHvalue()+arrangeXOffset;
+        double maxX = viewB.getWidth()+startX-arrangeXOffset;
+
         double maxheight = 0;
         List<EtoileControl> arranged = new ArrayList<>();
         for(EtoileControl e: remainList)
         {   //System.out.println(e.getView().getWidth());
-            if(startX>cielScrolPane.getWidth()) break;
+            if(startX>maxX) break;
             double width = e.getView().getBoundsInLocal().getWidth();
             double height = e.getView().getBoundsInLocal().getHeight();
-            if((startX+width)>cielScrolPane.getWidth() && !extra) continue;
+            if((startX+width)>maxX && !extra) continue;
             e.getView().relocate(startX,startY);
             if(height>maxheight) maxheight = height;
             startX += width;
@@ -164,7 +175,7 @@ public class CielRobot
             this.child = child;
             this.oldPlace = oldPlace;
             this.oldParent = oldParent;
-            this.oldIndex = oldIndex;     
+            this.oldIndex = oldIndex;
             this.newIndex = newIndex;
         }
 
@@ -172,7 +183,7 @@ public class CielRobot
         {   child.becomeFreeStar();
             if(oldParent==null) child.updateStarPos(oldPlace);
             else oldParent.insertChild(child,oldIndex);
-            
+
         }
         public void redo()
         {   if(oldParent==null) parent.insertChild(child,newIndex);
@@ -183,6 +194,6 @@ public class CielRobot
         }
     }
 
-    
+
 
 }
