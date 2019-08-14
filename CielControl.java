@@ -87,6 +87,7 @@ public class CielControl
     {   etoileControls.clear();
         alignControls.clear();
         cielArea.getChildren().clear();
+        clearWrappers();
         newAlignCurve = null;
         fromStar = null;
         nearsetStar = null;
@@ -121,42 +122,55 @@ public class CielControl
 
     private void scrollAndZoomSetUp()
     {
-       // start at the center
-        Bounds viewB = cielScrolPane.getViewportBounds();
-        double targetX = cielArea.getPrefWidth()/2-viewB.getWidth()/2;
-        double targetY = cielArea.getPrefHeight()/2-viewB.getHeight()/2;
+         // start at the center
+         moveViewPortToCenter();
 
-        double Hpercentage = targetX/(cielArea.getPrefWidth()-viewB.getWidth());
-        double Vpercentage = targetY/(cielArea.getPrefHeight()-viewB.getHeight());
+         // run later to avoid width/height change in intialization
+         Platform.runLater(()->anchorContentInScrolPane());
 
-        cielScrolPane.setHvalue(Hpercentage);
-        cielScrolPane.setVvalue(Vpercentage);
- // double currentY = (cielArea.getPrefHeight()-viewB.getHeight())*cielScrolPane.getVvalue();
+         cielBox.setOnScroll(e ->
+         {   e.consume();
+             onScroll(e.getDeltaY(), new Point2D(e.getX(), e.getY()));
+         });
 
-/* the listener here aims to anchor the mind map's visual position
- when the size of the viewport of the scrolpane is changed
- (as Hvalue/Vvalue isn't changed, without this adjustment the content will shift)
- some little math is done here
- */
-        cielScrolPane.widthProperty().addListener((obs,oldV,newV)->
+    }
+
+    /* the listener here aims to anchor the mind map's visual position
+     when the size of the viewport of the scrolpane is changed
+     (as Hvalue/Vvalue isn't changed, without this adjustment the content will shift)
+     some little math is done here
+     */
+    private void anchorContentInScrolPane()
+    {   cielScrolPane.widthProperty().addListener((obs,oldV,newV)->
         {   //scrolw is the width of the viewport
             double scrolW = (double)oldV - cielScrolPane.getPadding().getRight()- cielScrolPane.getPadding().getLeft();
             double scrolW1 = (double)newV - cielScrolPane.getPadding().getRight()- cielScrolPane.getPadding().getLeft();
             double newHvalue = (cielArea.getPrefWidth()-scrolW)/(cielArea.getPrefWidth()-scrolW1) * cielScrolPane.getHvalue();
             cielScrolPane.setHvalue(newHvalue);
+            //System.out.println("listen width");
         });
         cielScrolPane.heightProperty().addListener((obs,oldV,newV)->
         {   double scrolH = (double)oldV - cielScrolPane.getPadding().getTop() - cielScrolPane.getPadding().getBottom();
             double scrolH1 = (double)newV - cielScrolPane.getPadding().getTop()-cielScrolPane.getPadding().getBottom();
             double newVvalue = (cielArea.getPrefHeight()-scrolH)/(cielArea.getPrefHeight()-scrolH1) * cielScrolPane.getVvalue();
             cielScrolPane.setVvalue(newVvalue);
+            //System.out.println("h value listen and changed--" + newVvalue);
         });
+    }
 
-        System.out.println(cielScrolPane.getVvalue()+"--y,"+cielScrolPane.getHvalue()+"--x");
-        cielBox.setOnScroll(e ->
-        {   e.consume();
-            onScroll(e.getDeltaY(), new Point2D(e.getX(), e.getY()));
-        });
+    private void moveViewPortToCenter()
+    {    Bounds viewB = cielScrolPane.getViewportBounds();
+
+         double targetX = cielArea.getPrefWidth()/2-cielScrolPane.getPrefWidth()/2;
+         double targetY = cielArea.getPrefHeight()/2-cielScrolPane.getPrefHeight()/2;
+         double Hpercentage = targetX/(cielArea.getPrefWidth()-cielScrolPane.getPrefWidth());
+         double Vpercentage = targetY/(cielArea.getPrefHeight()-cielScrolPane.getPrefHeight());
+
+         cielScrolPane.setHvalue(0.5);
+         cielScrolPane.setVvalue(0.5);
+         // System.out.println(targetX+","+targetY);
+         // System.out.println(cielScrolPane.getVvalue()+"--y,"+cielScrolPane.getHvalue()+"--x");
+         // System.out.println(cielScrolPane.getVmax()+"--y,"+cielScrolPane.getHmax()+"--x");
     }
 
     private void updateScale()
@@ -295,11 +309,23 @@ public class CielControl
 // cause mouse_drag not delivered to the sub star
 // currently shuffling in pressed event;
 
-
+/*************!!!!!!****/
+// a restrucure is needed to get rid of startFullDrag
+// and use normal drag event (drag type 1 in javafx)
+// and then all the nodes even sub nodes can be dragged relatively
     private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> sudoStarWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> oriStarWrapper = new SimpleObjectProperty<>();
-    private final Coordination lastCoor = new Coordination(0,0);
+    private final ObjectProperty<Point2D> lastPosWrapper = new SimpleObjectProperty<>();
+
+    private void clearWrappers()
+    {
+       oldParentWrapper.setValue(null);
+        sudoStarWrapper.setValue(null);
+        oriStarWrapper.setValue(null);
+        lastPosWrapper.setValue(null);
+    }
+
     private void starMouseSetUp(EtoileControl controller)
     {   final Coordination oldCoor = new Coordination(0,0);
 
@@ -308,9 +334,15 @@ public class CielControl
         public void handle(MouseEvent event)
         {   Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
             EtoileControl target = controller;
+
             if(sudoStarWrapper.get()!=null) target = sudoStarWrapper.get();
 
-            target.updateStarPos(newCoor);
+            //if(lastPosWrapper.get()==null) lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
+            Point2D newPoint = new Point2D(newCoor.getX(),newCoor.getY());
+            Point2D oldPoint = lastPosWrapper.get();
+            Point2D adjust = newPoint.subtract(oldPoint);
+            lastPosWrapper.setValue(newPoint);
+            target.updateStarPosRelatively(new Coordination(adjust.getX(),adjust.getY()));
             //flying over something
             robot.highlightHoveredStar(target);
             event.consume();
@@ -324,6 +356,10 @@ public class CielControl
         {   //shuffle to the top
             oldCoor.setX(controller.getEtoile().getCoordination().getX());
             oldCoor.setY(controller.getEtoile().getCoordination().getY());
+
+            Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+            lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
+
             if(!controller.getEtoile().isSubStar()) controller.shuffleToTheTop();
             //System.out.println("star:"+controller.getEtoile().getName()+" pressed");
             event.consume();
@@ -342,10 +378,11 @@ public class CielControl
                     EtoileControl sudoStar = controller.giveADeepCopy();
                     controller.hideStarRecursively();
                     Coordination newCoor = getCielRelativeCoor(new Coordination(event.getSceneX(),event.getSceneY()));
+                    lastPosWrapper.setValue(new Point2D(newCoor.getX(),newCoor.getY()));
                     sudoStar.updateStarPos(newCoor);
                     sudoStarWrapper.set(sudoStar);
                 }
-                //System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
+                System.out.println("star:"+controller.getEtoile().getName()+" drag detected");
                 event.consume();
             }
         });
@@ -388,9 +425,9 @@ public class CielControl
                 sudoStarWrapper.setValue(null);
                 oldParentWrapper.setValue(null);
                 oriStarWrapper.setValue(null);
-
+                lastPosWrapper.setValue(null);
                 //cachedEtoile = null;
-                //System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
+                System.out.println("star:"+controller.getEtoile().getName()+" drag realeased");
                 event.consume();
             }
         });

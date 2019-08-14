@@ -1,3 +1,25 @@
 #ciel-background{
     -fx-fill: rgb(249,245,244);
 }
+
+#sub-hbox{
+-fx-spacing: 15;
+
+}
+
+#sub-etoile{
+   -fx-font-size: 16px;
+   -fx-font-weight: bold;
+   -fx-text-fill: rgb(63,114,232);
+}
+
+#parent-hbox{
+-fx-spacing: 25;
+
+}
+
+#parent-etoile{
+   -fx-font-size: 21px;
+   -fx-font-weight: bold;
+   -fx-text-fill: white;
+}

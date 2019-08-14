@@ -29,6 +29,6 @@
             <Region pickOnBounds="false" />
          </children>
       </VBox>
-      <VBox fx:id="childArea" cache="true" pickOnBounds="false" />
+      <VBox fx:id="childArea" cache="true" pickOnBounds="false" spacing="5.0" />
    </children>
 </HBox>

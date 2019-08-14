@@ -84,7 +84,7 @@ public class EtoileControl implements Initializable
         loadFromFxml();
         //loadChildren();
     }
-    
+
     protected void initialSetUp()
     {   ;
     }
@@ -137,6 +137,11 @@ public class EtoileControl implements Initializable
     public EtoileControl giveADeepCopy()
     {   Etoile modelDeepCopy = monEtoile.giveADeepCopy();
         EtoileControl deepCopy = new EtoileControl_Rectangle(modelDeepCopy,etoileMap,alignMap,cielArea,cielModel,outerSetup);
+
+        // visually more approperiate, but nasty
+        deepCopy.etoileView.setId("sub-hbox");
+        deepCopy.name.setId("sub-etoile");
+
         return deepCopy;
     }
 
@@ -147,23 +152,27 @@ public class EtoileControl implements Initializable
 
     public void addYourGroup()
     {   addYourself();
-        addChildStarRef(); 
+        addChildStarRef();
         addAllChildDrawing();
     }
-    
+
     public void addYourself()
     {   etoileMap.put(monEtoile,this);
         GlobalSatellite.putStarReference(monEtoile,this);
 
         //parent
         if(!monEtoile.isSubStar())
-        {   cielArea.getChildren().add(etoileView);
+        {   name.setId("parent-etoile");
+            etoileView.setId("parent-hbox");
+            cielArea.getChildren().add(etoileView);
             if(!this.cielModel.getParentEtoiles().contains(monEtoile))
             this.cielModel.getParentEtoiles().add(monEtoile);
         }
         //child
         else
-        {   EtoileControl parent = etoileMap.get(monEtoile.getParent());
+        {   name.setId("sub-etoile");
+            etoileView.setId("sub-hbox");
+            EtoileControl parent = etoileMap.get(monEtoile.getParent());
             if(monEtoile.getParent()==null) throw new RuntimeException("parent model cannot be found");
             if(parent==null) throw new RuntimeException("parent cannot be found");
             parent.getChildArea().getChildren().add(etoileView);
@@ -258,13 +267,13 @@ public class EtoileControl implements Initializable
         monEtoile.detachFromParent();
         addYourGroup();
     }
-    
+
     // child star must not be a sub star
     // should be already freed
     public void insertChild(EtoileControl childStar, int targetPos)
     {   //defensive
         if(childStar.getEtoile().isSubStar()) childStar.becomeFreeStar();
-        
+
         addChild(childStar);
 
         //adjust to target position
@@ -528,7 +537,7 @@ public class EtoileControl implements Initializable
     {   etoileView.relocate(adjustedCoor.getX(),adjustedCoor.getY());
     }
 
-    // when system shifts the layout by itself, 
+    // when system shifts the layout by itself,
     // lock the place of the primary view;
     // it's nasty
     private double layoutY = 0;
@@ -677,6 +686,6 @@ public class EtoileControl implements Initializable
         public void undo()
         {   target.setName(oldName);
         }
-        
+
     }
 }

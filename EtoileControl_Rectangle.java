@@ -23,8 +23,10 @@ import javafx.beans.value.*;
 // an etoile without anyshape (only text)
 
 public class EtoileControl_Rectangle extends EtoileControl implements Initializable
-{   
+{
     Rectangle rec;
+    //the gap between the curveline and the shape itsself
+    private final double curvePosVerticalOffset = 1.2d;
 
     public EtoileControl_Rectangle(Etoile etoile, Map<Etoile,EtoileControl> etoileMap,
             Map<Align,AlignControl> alignMap, Pane cielArea, Ciel cielModel, BehaviorInjection outerSetup)
@@ -32,7 +34,7 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
         primaryView.getChildren().remove(etoileShape);
         primaryView.getChildren().add(0,rec);
     }
-    
+
     protected void initialSetUp()
     {   rec = new Rectangle();
         rec.setArcHeight(15);
@@ -61,7 +63,7 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
     }
 
     @Override
-    protected String getFxmlName() 
+    protected String getFxmlName()
     {   if(getEtoile().isSubStar()) return "EtoileSub.fxml";
         else return "EtoileMain.fxml";
     }
@@ -82,7 +84,7 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
     protected DoubleBinding bottomRightY()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getYProperty().add
-                (rec.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.heightProperty().divide(2.0f).add(curvePosVerticalOffset).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
@@ -96,7 +98,7 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
     protected DoubleBinding bottomLeftY()
     {   Coordination coor = monEtoile.getCoordination();
         return coor.getYProperty().add
-                (rec.heightProperty().divide(2.0f).multiply(cielModel.getScaleProperty()));
+                (rec.heightProperty().divide(2.0f).add(curvePosVerticalOffset).multiply(cielModel.getScaleProperty()));
     }
 
     @Override
