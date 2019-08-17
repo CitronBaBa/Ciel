@@ -169,6 +169,7 @@ public class CielJavaManager implements Serializable
 
     private Etoile recordEtoileFromJava(ClassOrInterfaceDeclaration c, List<ImportDeclaration> imports)
     {   String className = c.getName().toString();
+        //System.out.println(c.getFullyQualifiedName());
         //if(c.isInterface()) return null;
         // two identical classes situation
         if(classes.containsKey(className)) return null;
@@ -465,7 +466,7 @@ public class CielJavaManager implements Serializable
 
     private Set<String> getDependentNames(ResolvedMethodDeclaration rmd)
     {   Set<String> dependents = new HashSet<>();
-
+        //System.out.println(rmd.getClassName()+","+rmd.getQualifiedName());
         if(isRelevantDependent(rmd.getClassName())) dependents.add(rmd.getClassName());
         dependents.addAll(getDependentNames(rmd.getReturnType()));
         //params
@@ -529,6 +530,20 @@ public class CielJavaManager implements Serializable
     private boolean isRelevantDependent(String name)
     {   if(classInterfaceEnums.contains(name))  return true;
         else return false;
+    }
+
+    private static class JavaEntity
+    {   private String simpleName;
+        private String fullName;
+        private Etoile etoile;
+        public JavaEntity(String simpleName, String fullName, Etoile etoile)
+        {   this.simpleName = simpleName;
+            this.fullName = fullName;
+            this.etoile = etoile;
+        }
+        public String getFullName() { return fullName;}
+        public String getSimpleName() { return fullName;}
+        public Etoile getEtoile() { return etoile;}
     }
 
 //debug note  :  constructer, enumeration un solved;
