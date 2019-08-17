@@ -150,8 +150,8 @@ public class CielRobot
             double width = e.getView().getBoundsInLocal().getWidth();
             double height = e.getView().getBoundsInLocal().getHeight();
             if((startX+width)>maxX && !extra) continue;
-            e.getView().relocate(startX,startY);
             if(height>maxheight) maxheight = height;
+            e.getView().relocate(startX,startY);
             startX += width;
             arranged.add(e);
         }

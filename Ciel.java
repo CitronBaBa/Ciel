@@ -62,6 +62,12 @@ public class Ciel implements Serializable
         {   if(!e.isSubStar()) etoilesOnSky.add(e);
         }
     }
+    public void readJavaFiles(File targetDir)
+    {   List<Etoile> resultedEtoiles = javaManager.readJavaFiles(targetDir);
+        for(Etoile e : resultedEtoiles)
+        {   if(!e.isSubStar()) etoilesOnSky.add(e);
+        }
+    }
 
     public void printMap()
     {   for(Etoile n : etoilesOnSky)

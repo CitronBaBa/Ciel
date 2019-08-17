@@ -30,6 +30,6 @@
             <Region pickOnBounds="false" />
          </children>
       </VBox>
-      <VBox fx:id="childArea" pickOnBounds="false" />
+      <VBox fx:id="childArea" pickOnBounds="false" spacing="8.0" />
    </children>
 </HBox>

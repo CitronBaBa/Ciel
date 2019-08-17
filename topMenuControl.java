@@ -122,16 +122,25 @@ public class topMenuControl
     }
 
     private void readingjava()
-    {   List<File> javaFiles = askReadJavaFiles();
-        if(javaFiles==null) return;
+    {   File targetDir = askReadDir();
+        if(targetDir==null) return;
         Ciel cielModel = new Ciel();
 
         // a nasty quick way to set parse environment
         // ideally should open another dialog
-        File parseDir = javaFiles.get(0).getParentFile();
-        cielModel.readJavaFiles(javaFiles,parseDir);
+        cielModel.readJavaFiles(targetDir);
         updateModel(cielModel);
         Platform.runLater(()->{cielControl.getRobot().arrangeAllStars();});
+    }
+    
+    private File askReadDir()
+    {   DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setInitialDirectory(new File("../"));
+        dirChooser.setTitle("Choose a directory");
+        File selectedFile = dirChooser.showDialog(globals.getStage());
+        if(selectedFile==null) return null;
+        if(!selectedFile.isDirectory()) return null;
+        return selectedFile;
     }
 
     private List<File> askReadJavaFiles()

@@ -30,7 +30,7 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     }
 
     protected void dynamicSizing()
-    {  
+    {
         // primaryView.widthProperty().bind(name.widthProperty());
         // primaryView.heightProperty().bind(name.heightProperty());
     }
@@ -49,7 +49,7 @@ public class EtoileControl_EmptyShape extends EtoileControl implements Initializ
     }
 
     @Override
-    protected String getFxmlName() 
+    protected String getFxmlName()
     {   if(getEtoile().isSubStar()) return "EtoileSub.fxml";
         else return "EtoileMain.fxml";
     }

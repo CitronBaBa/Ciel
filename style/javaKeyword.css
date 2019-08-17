@@ -1,5 +1,6 @@
 .code-area{
      -fx-font-size: 14px;
+     -fx-font-weight: 600;
 }
 
 .keyword {

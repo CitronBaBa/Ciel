@@ -174,7 +174,11 @@ public class EtoileControl implements Initializable
             etoileView.setId("sub-hbox");
             EtoileControl parent = etoileMap.get(monEtoile.getParent());
             if(monEtoile.getParent()==null) throw new RuntimeException("parent model cannot be found");
-            if(parent==null) throw new RuntimeException("parent cannot be found");
+            if(parent==null)
+            {   System.out.println("child is: " + monEtoile.getName());
+                System.out.println("parent is: " + monEtoile.getParent().getName());
+                throw new RuntimeException("parent view controller cannot be found");
+            }
             parent.getChildArea().getChildren().add(etoileView);
             if(this.childDraw==null) addMyChildDraw();
             if(!parent.getEtoile().getChildren().contains(monEtoile))
@@ -598,6 +602,7 @@ public class EtoileControl implements Initializable
     }
     private void textSetUp()
     {   nameField.setVisible(false);
+        nameField.setStyle("-fx-padding: 0 0 0 0;");
         // primaryView.getChildren().remove(nameField);
         nameField.setText(monEtoile.getName());
         name.textProperty().bind(nameField.textProperty());

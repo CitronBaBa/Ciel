@@ -56,8 +56,8 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
     @Override
     protected Point2D giveCenterPoint() //local coordinate system
     {   //primaryView.layout();
-        //System.out.println(rec.getWidth());
-        if(rec.getWidth()==0) return new Point2D(20,10);
+        //System.out.println(name.getWidth());
+        if(Math.abs(rec.getWidth()-0)<0.0001) return new Point2D(20,10);
         return new Point2D(rec.getWidth()/2,rec.getHeight()/2);
 
     }
@@ -71,8 +71,8 @@ public class EtoileControl_Rectangle extends EtoileControl implements Initializa
 
     @Override
     protected String getFxmlName()
-    {   if(getEtoile().isSubStar()) return "EtoileSub.fxml";
-        else return "EtoileMain.fxml";
+    {    return "EtoileSub.fxml";
+
     }
 
     protected ObservableDoubleValue getWidthProperty()

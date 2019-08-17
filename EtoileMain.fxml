@@ -14,12 +14,12 @@
             <StackPane fx:id="primaryView" cache="true" pickOnBounds="false">
                <children>
                   <Ellipse fx:id="etoileShape" cache="true" cacheHint="QUALITY" fill="#ffaaa5" radiusX="50.0" radiusY="40.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" prefHeight="44.0" prefWidth="55.0" text="Label">
+                  <TextField id="nameField" fx:id="nameField" alignment="CENTER" minWidth="10.0" prefHeight="11.0" prefWidth="11.0" text="Label">
                      <font>
                         <Font size="21.0" />
                      </font>
                   </TextField>
-                  <Label fx:id="name" text="Label" textFill="WHITE">
+                  <Label fx:id="name" alignment="CENTER" contentDisplay="CENTER" text="Label" textAlignment="CENTER" textFill="WHITE">
                      <font>
                         <Font size="21.0" />
                      </font>
@@ -29,6 +29,6 @@
             <Region pickOnBounds="false" />
          </children>
       </VBox>
-      <VBox fx:id="childArea" cache="true" pickOnBounds="false" spacing="5.0" />
+      <VBox fx:id="childArea" cache="true" pickOnBounds="false" spacing="8.0" />
    </children>
 </HBox>

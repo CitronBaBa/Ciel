@@ -93,7 +93,7 @@ public class StylePanel implements CielEventSubscriber
     }
 
     private void placeOneInterfaceBox(Node node)
-    {   GridPane.setConstraints(node,x++,y);
+    {   GridPane.setConstraints(node,x1++,y1);
         if(x1>9)
         {   x1=0;
         	y1++;
@@ -136,7 +136,7 @@ public class StylePanel implements CielEventSubscriber
     private void highlightRelatedStars(String interfaceName)
     {   Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
         Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
-
+    
         List<Etoile> targets = implementations.get(interfaceName);
         double[] colorFigures = interfaces.get(interfaceName);
         Color targetColor = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
@@ -156,6 +156,10 @@ public class StylePanel implements CielEventSubscriber
             eController.setShapeColor(targetColor);
         }
 
+        //highlight interface star itsself
+        Etoile target = globals.getCielModel().getJavaManager().getClasses().get(interfaceName);
+        if(target==null) return;
+        cielControl.getEtoileControls().get(target).setShapeColor(Color.rgb(255, 100, 100, 1));
         //HoustonCenter.recordAction(new MultiColorAction(oldColors,newColors));
     }
 
