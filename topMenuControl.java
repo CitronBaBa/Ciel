@@ -26,6 +26,10 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
 
+
+// responsible for menus on the top of the window 
+// saving reading different types of files are done in this class
+ 
 public class topMenuControl
 {   private CielControl cielControl;
     private GlobalSatellite globals;
@@ -41,7 +45,7 @@ public class topMenuControl
 
     public Slider slider;
     private void sliderSettings()
-    {   slider.setMax(0.8f);
+    {   slider.setMax(1.0f);
         slider.setMin(0.35f);
         slider.setValue(0.7f);
     }
@@ -132,7 +136,7 @@ public class topMenuControl
         updateModel(cielModel);
         Platform.runLater(()->{cielControl.getRobot().arrangeAllStars();});
     }
-    
+
     private File askReadDir()
     {   DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setInitialDirectory(new File("../"));
@@ -162,7 +166,7 @@ public class topMenuControl
     private void removing()
     {   cielControl.removeSelected();
     }
-    
+
     private void savingPhoto()
     {   File dir = new File ("./data/image/");
         if(!dir.exists()) dir.mkdir();
@@ -182,8 +186,8 @@ public class topMenuControl
 
     private void writePhotoFile(Image image,File outputFile)
     {   BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-        try {   ImageIO.write(bImage, "png", outputFile);} 
-        catch (IOException e) 
+        try {   ImageIO.write(bImage, "png", outputFile);}
+        catch (IOException e)
         {   throw new RuntimeException(e);
         }
     }

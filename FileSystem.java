@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-// this class is a legacy from the last assignment
+// this class is a legacy from my other programs
 // Therefore some functions are not used
 
 /* Do the job of saving tables to a folder with individual table file

@@ -2,6 +2,16 @@ import java.util.*;
 import java.io.*;
 import javafx.beans.property.*;
 
+// this class is the representation of the mind map as a whole
+// it includes parent nodes (stars) and links
+// child nodes' reference is hold by its parent
+
+/* notic the 'Ciel' is actually a french word meaning the sky
+   and 'Etoile' actually means star
+   sorry for my spoiled naming practice
+   understand these words will make it a lot easier to understand the program
+*/
+
 public class Ciel implements Serializable
 {   private List<Etoile> etoilesOnSky = new ArrayList<>();
     private List<Align> alignsOnSky = new ArrayList<>();

@@ -41,6 +41,8 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
 import com.github.javaparser.resolution.types.*;
 import com.github.javaparser.ast.expr.*;
 
+// an text area with java syntax highlighting and line count 
+
 public class JavaArea
 {   private StackPane javaArea;
     private CodeArea codeArea;

@@ -20,7 +20,7 @@ import javafx.scene.paint.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
 
-// an etoile without anyshape (only text)
+// a rectangle etoile  (only text)
 
 public class EtoileControl_Rectangle extends EtoileControl implements Initializable
 {

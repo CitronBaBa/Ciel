@@ -17,8 +17,7 @@ import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
-// a subscription system may be introduced for the interaction
-// between this and cielControl
+// the resizable text area on the right (contains javaArea.java) 
 public class TextRealm implements Initializable,CielEventSubscriber
 {   private VBox realm;
     private EtoileControl targetEtoile;

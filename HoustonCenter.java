@@ -1,5 +1,9 @@
 import java.util.*;
 
+// maintaing two systems, event subscribe-publish system 
+      //and the action redo system 
+   // serves as a center class in both systems (as its name)
+
 public class HoustonCenter 
 {   // for actions
     private static int index = -1;

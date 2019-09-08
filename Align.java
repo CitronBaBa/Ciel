@@ -1,5 +1,8 @@
 import java.util.*;
 import java.io.Serializable;
+
+// this class represents links between mind map node 
+
 public class Align implements Serializable
 {   private Etoile from;
     private Etoile to;

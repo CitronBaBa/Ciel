@@ -22,16 +22,20 @@ import javafx.beans.value.*;
 import javafx.application.Platform;
 import javafx.scene.transform.*;
 
+// this class holds the graphical object of etoile 
+// and controls it 
+
 // "etoileview - primaryview - shape" hierarchy and childArea are essential
 // however their relations can be aribtrary
 // with minor or zero modification it will still work
 
+// when inherited, all protected methods need to be override or checked
+// arbitrary shapes can be achieved using inheritance 
 
-/**** global star reference needs to be cleared when etoile is definitely
+/**** Warning: global star reference needs to be cleared when etoile is definitely
 removed for memory relieving ***/
 /* currently this is not adressed */
 
-// when inherited, all protected methods need to be override or checked
 public class EtoileControl implements Initializable
 {
     // total view

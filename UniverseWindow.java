@@ -19,6 +19,11 @@ import javafx.scene.effect.*;
 import javafx.beans.binding.*;
 import javafx.beans.value.*;
 
+// this is the main window 
+// it holds refernce of all UI components' controllers
+
+
+
 /// develop notes:
 /*  javafx calculates everything(layout, coordinate) after executing your program
     it also calculates the layout only after it is added to the scene
@@ -62,6 +67,7 @@ public class UniverseWindow extends Application implements Initializable,CielEve
         // }
     }
 
+// this part can be prettified 
     @Override
     public void start(Stage primaryStage) throws Exception
     {   FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("CielWindow.fxml"));
@@ -116,12 +122,16 @@ public class UniverseWindow extends Application implements Initializable,CielEve
     }
 
     private void dynamicSizing()
-    {   //Scene mainScene = globals.getStage().getScene();
-        //ObservableDoubleValue slideValue = topMenu.getSlideValue();
-        //textRealm.getRealm().prefWidthProperty().bind(mainScene.widthProperty().multiply(
-            // Bindings.subtract(1,slideValue)    ));
-        //textRealm.getRealm().maxHeightProperty().bind(cielScrolPane.prefHeightProperty());
-        //cielScrolPane.prefWidthProperty().bind(mainScene.widthProperty().multiply(slideValue));
+    {    
+        // topMenu.getSlideValue().addListener((obs,oldV,newV)->
+        //  {   if(Math.abs((double)newV-1.0f)<0.0001)
+        //       {   splitView.getItems().remove(textRealm.getRealm());
+        //       }
+        //       else if(!splitView.getItems().contains(textRealm.getRealm()))
+        //       {   splitView.getItems().add(textRealm.getRealm());
+        //           setUpDivder();
+        //       }
+        //  });
     }
 
     private void keyControl(Scene scene)

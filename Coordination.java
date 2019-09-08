@@ -2,6 +2,9 @@ import javafx.beans.property.*;
 import javafx.beans.binding.*;
 import java.io.*;
 
+// this class encapsulates the x,y coordinates
+// while can let someone else listen to it (which javafx point2d cannot)
+
 public class Coordination implements Serializable
 {   private transient DoubleProperty x = new SimpleDoubleProperty();
     private transient DoubleProperty y = new SimpleDoubleProperty();

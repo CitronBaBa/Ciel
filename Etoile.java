@@ -1,6 +1,9 @@
 import java.util.*;
 import java.io.Serializable;
 
+// this class is a mind map node
+// etoile actually means star  
+
 public class Etoile implements Serializable
 {   private String name = "Node";
     private String text = "";

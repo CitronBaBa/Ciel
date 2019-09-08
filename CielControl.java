@@ -18,6 +18,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 import javafx.beans.property.*;
 import javafx.application.Platform;
+
+// this is a complex class controlling the mind map canvas 
+// it also injects some behavior to node (etoile), 
+   ///which ideally could be done in EtoileControl 
+
+// it holds all all the references of graphic nodes/links (EtoileControls/AlignControls)
+// (model nodes/links are held in ciel.java)
+
 public class CielControl
 {   //fxml
     private Pane cielArea;
@@ -104,8 +112,8 @@ public class CielControl
         scrollAndZoomSetUp();
         popUpMenu();
         dragAssistance();
-        Etoile star0 = new Etoile("Node");
-        drawOneStar(star0);
+        // Etoile star0 = new Etoile("Node");
+        // drawOneStar(star0);
     }
     private void cielBoundSetUp()
     {   //cielArea.prefWidthProperty().bind(cielBox.widthProperty());
@@ -135,7 +143,7 @@ public class CielControl
 
     }
 
-    /* the listener here aims to anchor the mind map's visual position
+    /* this listener here aims to anchor the mind map's visual position
      when the size of the viewport of the scrolpane is changed
      (as Hvalue/Vvalue isn't changed, without this adjustment the content will shift)
      some little math is done here
@@ -273,11 +281,11 @@ public class CielControl
     }
 
 
-    // private EtoileControl cachedEtoile = null;
-
+   // this is a terrible work around to tackle javafx drag gesture
+   // currently it is replaced by other mechanisms
     private void dragAssistance()
     {
-//cielScrolPane.setPannable(false);
+      //cielScrolPane.setPannable(false);
         // cielScrolPane.setOnDragDetected(new EventHandler<MouseEvent>()
         // {   public void handle(MouseEvent event)
         //     {   System.out.println("background drag detected");
@@ -302,17 +310,28 @@ public class CielControl
     //
     }
 
-// child star should not be dragged
-// and ideally have a different mouse behavior
 
-// shuffling sub star (to pane) at the begining of drag will
-// cause mouse_drag not delivered to the sub star
-// currently shuffling in pressed event;
+/*  these four wrappers are here for the drag-and-drop feature
+    it is terriblely complex to bypass some JavaFX drag gesture obstacles
+    but it works very well
 
-/*************!!!!!!****/
-// a restrucure is needed to get rid of startFullDrag
-// and use normal drag event (drag type 1 in javafx)
-// and then all the nodes even sub nodes can be dragged relatively
+    ----- here is the detailed explanation -----
+    when the child node X is dragged, it will set the X and its 
+    children's children recursively to invisible.
+    and creates a sudo copy of X, move it under users' mouse
+    
+    then when users release it, it either fall on blank sapce, becomes a parent node
+    or it fall on one other node, become other node's child
+    when this happen, the sudo copy gets thrown away 
+    and the real X is set visible recursively and either becomes a parent node 
+    or a child accordingly  
+    --------------------------------------------
+
+    this will successfully keep the JavaFX drag gesture working 
+    while creates the fantasy that the dragged node is moving freely 
+    otherwise manipulating the dragged node directly will break the drag gesture 
+*/
+
     private final ObjectProperty<EtoileControl> oldParentWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> sudoStarWrapper = new SimpleObjectProperty<>();
     private final ObjectProperty<EtoileControl> oriStarWrapper = new SimpleObjectProperty<>();
@@ -326,6 +345,7 @@ public class CielControl
         lastPosWrapper.setValue(null);
     }
 
+// this currently gets wrapped up and inject to etoileControl
     private void starMouseSetUp(EtoileControl controller)
     {   final Coordination oldCoor = new Coordination(0,0);
 
@@ -356,6 +376,11 @@ public class CielControl
             //System.out.println("star:"+controller.getEtoile().getName()+" dragged");
         }
         });
+
+
+        // shuffling sub star (to pane) at the begining of drag will
+        // cause mouse_drag not delivered to the sub star
+        // so the program currently shuffles them in pressed event;
 
         controller.getPrimaryView().setOnMousePressed(new EventHandler<MouseEvent>() {
         @Override

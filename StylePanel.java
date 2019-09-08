@@ -17,6 +17,9 @@ import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.effect.*;
 
+// the button panel 
+// interface tab is updated each time new file is loaded 
+
 public class StylePanel implements CielEventSubscriber
 {   private CielControl cielControl;
     private GlobalSatellite globals;
@@ -72,7 +75,7 @@ public class StylePanel implements CielEventSubscriber
         //Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
         Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
         if(globals.getCielModel().getJavaManager().getLoadedClassesCount()==0)
-        {   bottomTabs.getTabs().remove(interfaceTab); 
+        {   bottomTabs.getTabs().remove(interfaceTab);
             return;
         }
         else if(!bottomTabs.getTabs().contains(interfaceTab))
@@ -136,7 +139,7 @@ public class StylePanel implements CielEventSubscriber
     private void highlightRelatedStars(String interfaceName)
     {   Map<String,List<Etoile>> implementations = globals.getCielModel().getJavaManager().getImplementations();
         Map<String,double[]> interfaces = globals.getCielModel().getJavaManager().getInterfaces();
-    
+
         List<Etoile> targets = implementations.get(interfaceName);
         double[] colorFigures = interfaces.get(interfaceName);
         Color targetColor = new Color(colorFigures[0],colorFigures[1],colorFigures[2],colorFigures[3]);
@@ -245,16 +248,17 @@ public class StylePanel implements CielEventSubscriber
     }
 
     private static Color[] colorPalette = {
-      Color.rgb(255, 255, 255, 1),
+      Color.rgb(128,179,234),
+      Color.rgb(148, 220, 246, 1),
       Color.rgb(132, 220, 198, 1),
       Color.rgb(165, 255, 214, 1),
       Color.rgb(255, 166, 158, 1),
-      Color.rgb(255, 104, 107, 1),
-      Color.rgb(150,206,180),
-      Color.rgb(255,238,173),
+
       Color.rgb(255,111,105),
+      Color.rgb(255,238,173),
+      Color.rgb(255, 94, 87, 1),
       Color.rgb(255,204,92),
-      Color.rgb(136,216,176),
+      Color.rgb(255,39,100,0.75),
    };
 
 }

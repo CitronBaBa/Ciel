@@ -31,6 +31,6 @@
         </menus>
       </MenuBar>
       <Region />
-      <Slider fx:id="slider" />
+      <Slider fx:id="slider" visible="false" />
    </children>
 </HBox>

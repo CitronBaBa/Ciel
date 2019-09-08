@@ -17,6 +17,15 @@ import java.io.*;
 import java.util.Collections;
 import javafx.scene.paint.*;
 
+// this class reads and parse a Java program and gives back 
+ // a list of etoiles(mind map nodes) created from its java classes 
+
+// there is a lot experiments going on, execution time is monitored
+// when switch debugging bool on, detailed symbol resolving info will be displayed
+
+// ideally users should be able to specify parsepath, and other dependent jarPath
+// currently its just the folder path
+
 public class CielJavaManager implements Serializable
 {   private Map<String,Etoile> classes = new HashMap<>();
     private Set<String> classInterfaceEnums = new HashSet<>();
@@ -29,7 +38,7 @@ public class CielJavaManager implements Serializable
     private File jarPath = new File("./FX/lib");
 
 
-// caching
+// caching, reused for recurrence of a method call to reduce execution time 
     Map<String,Set<String>> cachedMethodCalls = new HashMap<>();
 
 // testing and adjusting
@@ -104,7 +113,7 @@ public class CielJavaManager implements Serializable
         {   readJavaFile(file,javaClassDeclares,recordedEtoiles);
         }
         for(ClassOrInterfaceDeclaration c : javaClassDeclares)
-        {   
+        {
 
             recordInheritance(c);
             recordInnerClass(c);
@@ -144,7 +153,7 @@ public class CielJavaManager implements Serializable
         try
         {    compilationUnit = StaticJavaParser.parse(targetFile);
         }
-        catch(Exception e) 
+        catch(Exception e)
         {   System.out.println(e); e.printStackTrace(); return;
         }
         List<ClassOrInterfaceDeclaration> classesFromCode = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
@@ -185,7 +194,7 @@ public class CielJavaManager implements Serializable
         for(ClassOrInterfaceType i: implementeds)
         {   String interfaceName = i.getName().toString();
             if(!interfaces.containsKey(interfaceName))
-            {   double[] color = {Math.random()*0.35+0.63,Math.random()*0.35+0.63,Math.random()*0.35+0.63,1.0f};
+            {   double[] color = {Math.random()*0.37+0.60,Math.random()*0.35+0.53,Math.random()*0.35+0.43,1.0f};
                 interfaces.put(interfaceName,color);
                 implementations.put(interfaceName,new ArrayList<Etoile>());
             }
@@ -195,7 +204,7 @@ public class CielJavaManager implements Serializable
         return newEtoile;
     }
 
-// same child class name causing problems 
+// same child class name causing problems
 // as two classes will get the same etoile
 // the only solution is recursively or depth firstly adding etoiles
     private void recordInheritance(ClassOrInterfaceDeclaration c)

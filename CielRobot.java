@@ -17,6 +17,11 @@ import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
+// imagine it as a robot that does some logical things on the canvas 
+// this class manipulates the graphical nodes and other logical/computation staff 
+
+// used to encapsulate/delegate some logical parts from cielControl
+
 public class CielRobot
 {   private Map<Etoile,EtoileControl> etoileControls;
     private ScrollPane cielScrolPane;
@@ -26,6 +31,7 @@ public class CielRobot
 
     private final double arrangeXOffset = 25;
     private final double arrangeYOffset = 25;
+    private final double arrangeYgap = 10;
 
     public CielRobot(Map<Etoile,EtoileControl> etoileControls, ScrollPane cielScrolPane, Pane cielArea)
     {   this.etoileControls = etoileControls;
@@ -54,7 +60,7 @@ public class CielRobot
                 main.becomeFreeStar();
             }
             oldHighlightedStar.insertChild(main,index);
-            System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
+            //System.out.println(main.getEtoile().getName()+"----"+oldHighlightedStar.getEtoile().getName()+" merged");
             HoustonCenter.recordAction(new MergeAction(oldHighlightedStar,main,oldParent,oldCoor,oldIndex,index));
             return true;
         }
@@ -158,7 +164,7 @@ public class CielRobot
         remainList.removeAll(arranged);
 
         if(arranged.size()==0) return startY+maxheight;
-        return arrange(remainList,startY+maxheight,extra);
+        return arrange(remainList,startY+maxheight+arrangeYgap,extra);
     }
 
 

@@ -17,7 +17,9 @@ import javafx.scene.*;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.*;
 
-//holding global value
+// holding global values
+// is a singleton
+
 public class GlobalSatellite 
 {   private static GlobalSatellite satellite;
 
