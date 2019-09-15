@@ -4,8 +4,16 @@
    understand these words will make it a lot easier to understand the program  
 */
 
+currently dependency finding for packaged java program is not realized   
+(only need to change the current simple class name to fullqualified class name (like javafx.control.bind instead of bind)   
+but it needs more testing based on that)   
+
+
 ## links to precompiled version for windows   
-https://drive.google.com/file/d/1yqaNwpIuVCKR7z7MOsCOUS7aJloYAP1Q/view?usp=sharing    
+https://drive.google.com/file/d/1yqaNwpIuVCKR7z7MOsCOUS7aJloYAP1Q/view?usp=sharing  
+## links to precompiled version for mac   
+https://drive.google.com/open?id=1-T3qefOpjvbNa-UKOX1xVX2B7xooH3NJ  
+
 
 ## links to other files   
 online questionnaire: https://forms.gle/29ZSJc7rVj6KeSnC8    
